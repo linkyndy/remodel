@@ -4,9 +4,14 @@ services:
     - mies/rethinkdb
 build:
     steps:
-        - virtualenv
-        - pip-install:
-            packages_list: pytest
+        - virtualenv:
+            install_wheel: false
+        - script:
+            name: Install remodel
+            code: pip install .
+        - script:
+            name: Install test dependencies
+            code: pip install pytest
         - script:
             name: Run tests
             code: py.test tests/

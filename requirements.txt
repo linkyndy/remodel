@@ -1,2 +1,0 @@
-inflect==0.2.4
-rethinkdb==1.14.0-1
