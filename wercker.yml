@@ -1,0 +1,12 @@
+---
+box: wercker/python
+services:
+    - mies/rethinkdb
+build:
+    steps:
+        - script:
+            name: Install Python package
+            code: pip install .
+        - script:
+            name: Run tests
+            code: py.test tests/
