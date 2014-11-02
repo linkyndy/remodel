@@ -4,9 +4,9 @@ services:
     - mies/rethinkdb
 build:
     steps:
-        - script:
-            name: Install Python package
-            code: pip install .
+        - virtualenv
+        - pip-install:
+            packages_list: pytest
         - script:
             name: Run tests
             code: py.test tests/
