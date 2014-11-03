@@ -2,6 +2,8 @@
 remodel
 =======
 
+[![wercker status](https://app.wercker.com/status/572156625000100a804563e52fbe3dfd/s/master "wercker status")](https://app.wercker.com/project/bykey/572156625000100a804563e52fbe3dfd)
+
 Very simple yet powerful and extensible Object Document Mapper for RethinkDB, written in Python.
 
 It is plain simple
@@ -10,10 +12,10 @@ It is plain simple
 .. code-block:: python
 
     from remodel import Model
-    
+
     class User(Model):
         pass
-    
+
 That's really everything you need to do to set up a model!
 
 
@@ -36,7 +38,7 @@ To install remodel, just:
 .. code-block:: bash
 
     $ pip install remodel
-    
+
 Examples
 ========
 
@@ -51,10 +53,10 @@ Field manipulation
     class School(Model):
         belongs_to = ('City',)
         has_many = ('Class',)
-        
+
     class Class(Model):
         belongs_to = ('School',)
-        
+
     >>> city = City(name='Timisoara', country='Romania')
     >>> city.save()
     >>> school = School(type='high-school', city=city)
@@ -81,9 +83,9 @@ Field manipulation
     >>> del school['type']
     >>> print school.fields.as_dict()
     {'city': <City 1e03c1f1-32bd-434c-8f54-8d85a3ccb8ae>, 'principal': 'Andrei H'}
-    
+
 Handling fields is as simple as handling a standard `dict`.
-    
+
 
 Defining relations
 ------------------
@@ -93,10 +95,10 @@ Defining relations
     class Artist(Model):
         has_many = ('Song', 'Concert')
         has_and_belongs_to_many = ('Genre',)
-        
+
     class Song(Model):
         belongs_to = ('Artist',)
-        
+
 remodel supports various types of relationships:
 - has one
 - belongs to
@@ -112,10 +114,10 @@ If you need precise definition for your related models, you can pass a configura
 
     class Artist(Model):
         has_many = (('Song', 'songs', 'id', 'song_id'), 'Concert') # Tuple definition: (<related model name>, <related objects accessor field>, <model key>, <related model key>)
-        
+
 One important thing to notice is that reverse relationships aren't automatically ensured if only one end of the relationship is defined. This means that if ``Artist has many Song``, ``Song belongs to Artist`` is not automatically enforced unless explicitly defined. The reason for this design decision is that many relationships are accessed only from one side and by ensuring a double-sided access an unnecessary overhead is introduced. Hence, simple and more explicit results in higher performance.
-    
-    
+
+
 Motivation
 ==========
 
