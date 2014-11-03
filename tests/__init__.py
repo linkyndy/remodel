@@ -1,3 +1,4 @@
+import os
 import rethinkdb as r
 from rethinkdb.errors import RqlDriverError
 import unittest
@@ -22,7 +23,7 @@ class DbBaseTestCase(BaseTestCase):
     def setUpClass(cls):
         # Create new connection and add it to the connection store so it can
         # be used by models
-        connection = Connection()
+        connection = Connection(**cls.get_env_settings())
         cs.put(connection)
 
     @classmethod
@@ -45,6 +46,15 @@ class DbBaseTestCase(BaseTestCase):
 
         # Drop test database
         r.db_drop('testing').run(cs.get())
+
+    @staticmethod
+    def get_env_settings():
+        settings = {}
+        settings['host'] = os.environ.get('RETHINKDB_HOST', None)
+        settings['port'] = os.environ.get('RETHINKDB_PORT', None)
+        settings['auth'] = os.environ.get('RETHINKDB_AUTH', None)
+        settings['db'] = os.environ.get('RETHINKDB_DB', None)
+        return {k: v for k, v in settings.items() if v is not None}
 
 
 

@@ -14,4 +14,6 @@ build:
             code: pip install pytest
         - script:
             name: Run tests
-            code: py.test tests/
+            code: |
+                export RETHINKDB_HOST=$WERCKER_RETHINKDB_HOST
+                py.test tests/
