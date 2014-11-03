@@ -1,4 +1,3 @@
-import mock
 import rethinkdb as r
 from rethinkdb.errors import RqlDriverError
 import unittest
