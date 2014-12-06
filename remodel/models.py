@@ -1,6 +1,5 @@
 import rethinkdb as r
 
-from connection import connection_store
 from decorators import classproperty, classaccessonly, classaccessonlyproperty
 from errors import OperationError
 from field_handler import FieldHandlerBase, FieldHandler
@@ -23,7 +22,6 @@ class ModelBase(type):
 
         # Set metadata
         dct['_table'] = pluralize(name).lower()
-        dct['_connection_store'] = connection_store
 
         rel_attrs = {rel: dct.setdefault(rel, ()) for rel in REL_TYPES}
         dct['_field_handler_cls'] = FieldHandlerBase(
@@ -54,12 +52,12 @@ class Model(object):
             result = (r.table(self._table).get(id_).replace(r.row
                         .without(r.row.keys().difference(fields_dict.keys()))
                         .merge(fields_dict), return_changes=True)
-                      .run(self.conn))
+                      .run())
                       # ? maybe remove .keys() ? it should accept an iterable
         except KeyError:
             # Resort to insert
             result = (r.table(self._table).insert(fields_dict, return_changes=True)
-                      .run(self.conn))
+                      .run())
 
         if result['errors'] > 0:
             raise OperationError(result['first_error'])
@@ -70,7 +68,7 @@ class Model(object):
     def delete(self):
         try:
             id_ = getattr(self.fields, 'id')
-            result = r.table(self._table).get(id_).delete().run(self.conn)
+            result = r.table(self._table).get(id_).delete().run()
         except AttributeError:
             raise OperationError('Cannot delete %r (object not saved or '
                                  'already deleted)' % self)
@@ -92,13 +90,13 @@ class Model(object):
     @classaccessonly
     def get(cls, id_=None, **kwargs):
         if id_:
-            doc = cls.table.get(id_).run(cls.conn)
+            doc = cls.table.get(id_).run()
             if doc is not None:
                 return wrap_document(cls, doc)
             return None
         try:
             return list(ObjectSet(cls, (cls.table.filter(kwargs)
-                                        .limit(1).run(cls.conn))))[0]
+                                        .limit(1).run())))[0]
         except IndexError:
             return None
 
@@ -111,14 +109,14 @@ class Model(object):
 
     @classaccessonly
     def all(cls):
-        return ObjectSet(cls, cls.table.run(cls.conn))
+        return ObjectSet(cls, cls.table.run())
 
     @classaccessonly
     def filter(cls, ids=None, **kwargs):
         if ids:
             return ObjectSet(cls, (cls.table.get_all(r.args(ids))
-                                   .filter(kwargs).run(cls.conn)))
-        return ObjectSet(cls, cls.table.filter(kwargs).run(cls.conn))
+                                   .filter(kwargs).run()))
+        return ObjectSet(cls, cls.table.filter(kwargs).run())
 
     def __getitem__(self, key):
         try:
@@ -154,8 +152,3 @@ class Model(object):
     @classaccessonlyproperty
     def table(cls):
         return r.table(cls._table)
-
-    @classproperty
-    def connection(cls):
-        return cls._connection_store.get()
-    conn = connection

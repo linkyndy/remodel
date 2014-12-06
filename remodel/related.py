@@ -112,11 +112,11 @@ def create_related_set_cls(model_cls, lkey, rkey):
                           .get_all(self._get_parent_lkey(), index=rkey))
 
         def all(self):
-            return ObjectSet(model_cls, self.query.run(model_cls.conn))
+            return ObjectSet(model_cls, self.query.run())
 
         def filter(self, **kwargs):
             return ObjectSet(model_cls, (self.query.filter(kwargs)
-                                         .run(model_cls.conn)))
+                                         .run()))
 
         def add(self, *objs):
             for obj in objs:
@@ -195,11 +195,11 @@ def create_related_m2m_set_cls(model_cls, lkey, rkey, join_model_cls, mlkey, mrk
                           .map(lambda res: res['right']))
 
         def all(self):
-            return ObjectSet(model_cls, self.query.run(join_model_cls.conn))
+            return ObjectSet(model_cls, self.query.run())
 
         def filter(self, **kwargs):
             return ObjectSet(model_cls, (self.query.filter(kwargs)
-                                         .run(join_model_cls.conn)))
+                                         .run()))
 
         def add(self, *objs):
             new_keys = set()
@@ -215,13 +215,13 @@ def create_related_m2m_set_cls(model_cls, lkey, rkey, join_model_cls, mlkey, mrk
                 new_keys.add(obj_key)
 
             existing_keys = {doc[rkey]
-                            for doc in self.query.run(join_model_cls.conn)}
+                            for doc in self.query.run()}
             new_keys -= existing_keys
 
             for obj_key in new_keys:
                 params = {mlkey: self._get_parent_lkey(),
                           mrkey: obj_key}
-                join_model_cls.table.insert(params).run(join_model_cls.conn)
+                join_model_cls.table.insert(params).run()
 
         def remove(self, *objs):
             old_keys = set()
@@ -234,19 +234,19 @@ def create_related_m2m_set_cls(model_cls, lkey, rkey, join_model_cls, mlkey, mrk
                     old_keys.add(obj_key)
 
             existing_keys = {doc[rkey]
-                            for doc in self.query.run(join_model_cls.conn)}
+                            for doc in self.query.run()}
             # Remove inexisting keys from old_keys
             old_keys &= existing_keys
 
             if old_keys:
                 (join_model_cls.table.get_all(r.args(list(old_keys)), index=mrkey)
                                      .delete()
-                                     .run(join_model_cls.conn))
+                                     .run())
 
         def clear(self):
             (join_model_cls.table
              .get_all(self._get_parent_lkey(), index=mlkey)
-             .delete().run(join_model_cls.conn))
+             .delete().run())
 
         def _get_parent_lkey(self):
             parent_lkey = getattr(self.parent, lkey, None)

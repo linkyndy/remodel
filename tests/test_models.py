@@ -2,7 +2,6 @@ import pytest
 import rethinkdb as r
 import unittest
 
-from remodel.connection import connection_store as cs
 from remodel.errors import OperationError
 from remodel.models import Model
 from remodel.registry import model_registry
@@ -19,7 +18,6 @@ class ModelTests(BaseTestCase):
             pass
 
         assert hasattr(Artist, '_table')
-        assert hasattr(Artist, '_connection_store')
         assert hasattr(Artist, 'has_one')
         assert hasattr(Artist, 'has_many')
         assert hasattr(Artist, 'has_and_belongs_to_many')
@@ -155,7 +153,7 @@ class SaveTests(DbBaseTestCase):
         create_indexes()
 
     def assert_saved(self, table, fields):
-        assert len(list(r.table(table).filter(fields).run(cs.get()))) == 1
+        assert len(list(r.table(table).filter(fields).run())) == 1
 
     def test_insert(self):
         a = self.Artist(name='Andrei')
@@ -254,7 +252,7 @@ class DeleteTests(DbBaseTestCase):
         create_indexes()
 
     def assert_deleted(self, table, fields):
-        assert len(list(r.table(table).filter(fields).run(cs.get()))) == 0
+        assert len(list(r.table(table).filter(fields).run())) == 0
 
     def test_not_saved(self):
         a = self.Artist()

@@ -1,53 +1,72 @@
 import rethinkdb as r
+from contextlib import contextmanager
+from Queue import Queue, Empty
 
-
-class ConnectionStore(object):
-    """
-    Basic connection store, allowing only one connection to be stored.
-    """
-
-    def __init__(self):
-        self.stored = None
-
-    def get(self):
-        if not self.stored:
-            raise Exception('No connection in store')
-        return self.stored.connection
-
-    def put(self, connection):
-        self.stored = connection
-
-    def remove(self):
-        if not self.stored:
-            raise Exception('No connection in store')
-        self.stored.close()
-        self.stored = None
-
-
-# Used in ModelBase metaclass to assign a connection store for each Model
-# class. Every connection used by models will be picked up from this store.
-connection_store = ConnectionStore()
+from utils import Counter
 
 
 class Connection(object):
-
-    def __init__(self, db='test', host='localhost', port='28015', auth_key=''):
+    def __init__(self, db='test', host='localhost', port=28015, auth_key=''):
         self.db = db
         self.host = host
         self.port = port
         self.auth_key = auth_key
-        self._connection = None
+        self._conn = None
 
     def connect(self):
-        self._connection = r.connect(host=self.host, port=self.port, auth_key=self.auth_key, db=self.db)
+        self._conn = r.connect(host=self.host, port=self.port,
+                               auth_key=self.auth_key, db=self.db)
 
     def close(self):
-        if self._connection:
-            self._connection.close()
-            self._connection = None
+        if self._conn:
+            self._conn.close()
+            self._conn = None
 
     @property
-    def connection(self):
-        if not self._connection:
+    def conn(self):
+        if not self._conn:
             self.connect()
-        return self._connection
+        return self._conn
+
+
+class ConnectionPool(object):
+    def __init__(self, max_connections=5):
+        self.q = Queue()
+        self.max_connections = max_connections
+        self._created_connections = Counter()
+        self.connection_class = Connection
+        self.connection_kwargs = {}
+
+    def configure(self, max_connections=5, **connection_kwargs):
+        self.max_connections = max_connections
+        self.connection_kwargs = connection_kwargs
+
+    def get(self):
+        try:
+            return self.q.get_nowait()
+        except Empty:
+            if self._created_connections.current() < self.max_connections:
+                conn = self.connection_class(**self.connection_kwargs).conn
+                self._created_connections.incr()
+                return conn
+            raise
+
+    def put(self, connection):
+        self.q.put(connection)
+        self._created_connections.decr()
+
+    def created(self):
+        return self._created_connections.current()
+
+
+pool = ConnectionPool()
+
+
+@contextmanager
+def get_conn():
+    conn = pool.get()
+    try:
+        yield conn
+    finally:
+        pool.put(conn)
+
