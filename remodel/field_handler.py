@@ -1,3 +1,4 @@
+from errors import AlreadyRegisteredError
 import models
 from registry import index_registry
 from related import (HasOneDescriptor, BelongsToDescriptor, HasManyDescriptor,

@@ -53,7 +53,6 @@ class Model(object):
                         .without(r.row.keys().difference(fields_dict.keys()))
                         .merge(fields_dict), return_changes=True)
                       .run())
-                      # ? maybe remove .keys() ? it should accept an iterable
         except KeyError:
             # Resort to insert
             result = (r.table(self._table).insert(fields_dict, return_changes=True)
