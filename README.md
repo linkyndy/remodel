@@ -8,13 +8,15 @@ Very simple yet powerful and extensible Object Document Mapper for RethinkDB, wr
 ## It is plain simple!
 
 ```python
-    from remodel import Model
+from remodel.models import Model
 
-    class User(Model):
-        pass
+class User(Model):
+    pass
 ```
 
 That's really everything you need to do to set up a model!
+
+> Don't forget to turn on your RethinkDB server and to create your tables (check the examples below for a helper that does just that!).
 
 ## Features
 
@@ -29,7 +31,7 @@ That's really everything you need to do to set up a model!
 ## Installation
 
 ```bash
-    pip install remodel
+pip install remodel
 ```
 
 ## Examples
@@ -49,6 +51,24 @@ my_order.save()
 saved_order = Order.get(customer='Andrei')
 # Delete
 saved_order.delete()
+```
+
+### Creating tables
+
+```python
+from remodel.models import Model
+from remodel.utils import create_tables, create_indexes
+
+class Party(Model):
+    has_many = ('Guest',)
+
+class Guest(Model):
+    belongs_to = ('Party',)
+
+# Creates all database tables defined by models
+create_tables()
+# Creates all table indexes based on model relations
+create_indexes()
 ```
 
 ### Relations
@@ -113,6 +133,20 @@ quattro_formaggi = Recipe.create(name='Pizza Quattro Formaggi')
 andrei = Chef.create(name='Andrei')
 andreis_special_quattro_formaggi = SpecificSpice.create(chef=andrei, recipe=quattro_formaggi, oregano=True, love=True)
 print andreis_special_quatro_formaggi['love'] # prints True
+```
+
+### Custom model queries
+
+```python
+import rethinkdb as r
+
+class Celebrity(Model):
+    pass
+
+Celebrity.create(name='george clooney')
+Celebrity.create(name='kate winslet')
+upper = Celebrity.table.map({'name': r.row['name'].upcase()}).run()
+print list(upper) # prints [{u'name': u'GEORGE CLOONEY'}, {u'name': u'KATE WINSLET'}]
 ```
 
 ### Custom instance methods
