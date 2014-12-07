@@ -1,4 +1,3 @@
-=======
 remodel
 =======
 
@@ -6,119 +5,218 @@ remodel
 
 Very simple yet powerful and extensible Object Document Mapper for RethinkDB, written in Python.
 
-It is plain simple
-==================
+## It is plain simple!
 
-.. code-block:: python
-
+```python
     from remodel import Model
 
     class User(Model):
         pass
+```
 
 That's really everything you need to do to set up a model!
 
-
-Features
-========
+## Features
 
 - schemaless;
-- ``dict`` interface;
+- `dict` interface;
 - full support for relations;
 - indexes;
 - convention over configuration;
 - lazy-loading;
 - caching;
 
-Installation
-============
+## Installation
 
-To install remodel, just:
+```bash
+    pip install remodel
+```
 
-.. code-block:: bash
+## Examples
 
-    $ pip install remodel
+### Basic CRUD operations
 
-Examples
-========
+```python
+class Order(Model):
+    pass
 
-Field manipulation
-------------------
+# Create
+my_order = Order.create(customer='Andrei', shop='GitHub')
+# Update
+my_order['total'] = 100
+my_order.save()
+# Read
+saved_order = Order.get(customer='Andrei')
+# Delete
+saved_order.delete()
+```
 
-.. code-block:: python
+### Relations
 
-    class City(Model):
-        pass
+#### Has one / Belongs to
 
-    class School(Model):
-        belongs_to = ('City',)
-        has_many = ('Class',)
+```python
+class User(Model):
+    has_one = ('Profile',)
 
-    class Class(Model):
-        belongs_to = ('School',)
+class Profile(Model):
+    belongs_to = ('User',)
 
-    >>> city = City(name='Timisoara', country='Romania')
-    >>> city.save()
-    >>> school = School(type='high-school', city=city)
-    >>> school.save()
-    >>> print school['type']
-    high-school
-    >>> print school['city']['name']
-    Timisoara
-    >>> c22 = Class(name='Class 22')
-    >>> c22.save() # We can save a class even though we haven't specified the School object it belongs to!
-    >>> print c22['school']
-    None
-    >>> c14 = Class(name='Class 14')
-    >>> school['classes'].add(c22, c14) # No need to call save() on assign objects; add() takes care of it
-    >>> for c in school['classes'].all():
-    ...     print c['name']
-    ...
-    Class 14
-    Class 22
-    >>> Class.get(name='Class 14').delete()
-    >>> print len(list(school['classes'].all())) # Since related Classes are lazily fetched, we need to coerce them to a list before returning their count
-    1
-    >>> school['principal'] = 'Andrei H'
-    >>> del school['type']
-    >>> print school.fields.as_dict()
-    {'city': <City 1e03c1f1-32bd-434c-8f54-8d85a3ccb8ae>, 'principal': 'Andrei H'}
+andrei = User.create(name='Andrei')
+profile = Profile.create(user=andrei, network='GitHub', username='linkyndy')
+print profile['user']['name'] # prints Andrei
+```
 
-Handling fields is as simple as handling a standard `dict`.
+#### Has many / Belongs to
 
+```python
+class Country(Model):
+    has_many = ('City',)
 
-Defining relations
-------------------
+class City(Model):
+    belongs_to = ('Country',)
 
-.. code-block:: python
+romania = Country.create(name='Romania')
+romania['cities'].add(City(name='Timisoara'), City(name='Bucharest'))
+print len(list(romania['cities'].all())) # prints 2
+```
 
-    class Artist(Model):
-        has_many = ('Song', 'Concert')
-        has_and_belongs_to_many = ('Genre',)
+#### Has and belongs to many
 
-    class Song(Model):
-        belongs_to = ('Artist',)
+```python
+class Post(Model):
+    has_and_belongs_to_many = ('Tag',)
 
-remodel supports various types of relationships:
+class Tag(Model):
+    has_and_belongs_to_many = ('Post',)
+
+my_post = Post.create(name='My first post')
+personal_tag = Tag.create(name='personal')
+public_tag = Tag.create(name='public')
+my_post['tags'].add(personal_tag, public_tag)
+print len(list(my_post['tags'].all())) # prints 2
+```
+
+#### Has many through
+
+```python
+class Recipe(Model):
+    has_many = ('SpecificSpice',)
+
+class Chef(Model):
+    has_many = ('SpecificSpice',)
+
+class SpecificSpice(Model):
+    belongs_to = ('Recipe', 'Chef')
+
+quattro_formaggi = Recipe.create(name='Pizza Quattro Formaggi')
+andrei = Chef.create(name='Andrei')
+andreis_special_quattro_formaggi = SpecificSpice.create(chef=andrei, recipe=quattro_formaggi, oregano=True, love=True)
+print andreis_special_quatro_formaggi['love'] # prints True
+```
+
+### Custom instance methods
+
+```python
+class Child(Model):
+    def is_minor(self):
+        if 'age' in self:
+            return self['age'] < 18
+
+jack = Child.create(name='Jack', age=15)
+jack.is_minor() # prints True
+```
+
+### Custom class methods
+
+```python
+from remodel.decorators import classaccessonly
+from remodel.related import ObjectSet
+
+class Trip(Model):
+    @classaccessonly
+    def in_europe(cls):
+        return ObjectSet(cls, cls.table.filter({'continent': 'Europe'}).run())
+
+Trip.create(continent='Europe', city='Paris')
+Trip.create(continent='Asia', city='Shanghai')
+Trip.create(continent='Europe', city='Dublin')
+print len(list(Trip.in_europe())) # prints 2
+```
+
+### Viewing object fields
+
+```python
+class Train(Model):
+    pass
+
+train = Train.create(nr=12345, destination='Paris', has_restaurant=True, classes=[1, 2])
+print train.fields.as_dict()
+# prints {u'classes': [1, 2], u'nr': 12345, u'destination': u'Paris', u'has_restaurant': True, u'id': u'd9b8d57f-5d67-4ff7-acf8-cbf7fdd65581'}
+```
+
+## Concepts
+
+### Relations
+
+Remodel supports various types of relationships:
 - has one
 - belongs to
 - has many
 - has and belongs to many
 - has many through
 
+#### Defining relations
+
 Related models are passed as tuples in a model's definition. All other aspects, such as foreign keys, indexes, lazy relation loading and relation cache are magically handled for you.
 
 If you need precise definition for your related models, you can pass a configuration tuple instead of the string name of your related model:
 
-.. code-block:: python
-
+```python
     class Artist(Model):
-        has_many = (('Song', 'songs', 'id', 'song_id'), 'Concert') # Tuple definition: (<related model name>, <related objects accessor field>, <model key>, <related model key>)
+        has_many = (('Song', 'songs', 'id', 'song_id'), 'Concert')
+        # Tuple definition: (<related model name>, <related objects accessor field>, <model key>, <related model key>)
+```
 
-One important thing to notice is that reverse relationships aren't automatically ensured if only one end of the relationship is defined. This means that if ``Artist has many Song``, ``Song belongs to Artist`` is not automatically enforced unless explicitly defined. The reason for this design decision is that many relationships are accessed only from one side and by ensuring a double-sided access an unnecessary overhead is introduced. Hence, simple and more explicit results in higher performance.
+> One important thing to notice is that reverse relationships are **not automatically ensured** if only one end of the relationship is defined. This means that if ``Artist has_many Song``, ``Song belongs_to Artist`` is not automatically enforced unless explicitly defined.
 
+#### Using relations
 
-Motivation
-==========
+Assigning `has_one` and `belongs_to` objects doesn't mean that they are persisted. You need to manually call `save()` on them; assuming `Profile belongs_to User`:
 
-The main reason for remodel's existence is the need of a light-weight ODM for RethinkDB, one that doesn't force you to ensure a document schema, one that provides a familiar interface and one that gracefully handles relations between models.
+```python
+profile['user'] = User(...)
+profile.save()
+```
+
+On the other side, assigning `has_many` and `has_and_belongs_to_many` objects automatically persist them, so there is no need for you to call `save()` on them; assuming `Shop has_many Product`:
+
+```python
+shop.add(product1, produt2)
+# No need to call save() on products!
+```
+
+> Note that certain assignments of related objects can not be performed unless one (or both) of the objects is saved. You can not save a `GiftSize` with a `Gift` attached without saving the `Gift` object first (when having a `GiftSize belongs_to Gift`).
+
+## Motivation
+
+The main reason for Remodel's existence was the need of a light-weight ODM for RethinkDB, one that doesn't force you to ensure a document schema, one that provides a familiar interface and one that gracefully handles relations between models.
+
+## Development
+
+Remodel is under active development and it is not yet production-ready. Any contribution is highly appreciated, no matter it is a small bug fix, feature implementation or a typo in the docs.
+
+### How to contribute
+
+Just fork this repository, do your magic and submit a pull request!
+
+### Running tests
+
+```bash
+pip install pytest
+py.test tests/
+```
+
+### Tracking issues
+
+All Remodel issues/feature requests/bugs/questions can be addressed on https://github.com/linkyndy/remodel/issues
