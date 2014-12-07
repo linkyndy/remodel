@@ -17,3 +17,12 @@ build:
             code: |
                 export RETHINKDB_HOST=$WERCKER_RETHINKDB_HOST
                 py.test tests/
+deploy:
+    steps:
+        - script:
+            name: PyPI upload
+            code: |
+                echo "[pypi]" > ~/.pypirc
+                echo "username:$PYPI_USER" >> ~/.pypirc
+                echo "password:$PYPI_PASSWORD" >> ~/.pypirc
+                python setup.py sdist upload
