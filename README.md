@@ -242,7 +242,13 @@ Remodel is under active development and it is not yet production-ready. Any cont
 
 ### How to contribute
 
-Just fork this repository, do your magic and submit a pull request!
+Just fork this repository, do your magic and submit a pull request on the development branch!
+
+### Branches
+
+Active development and up-to-date code can be found on the `develop` branch
+
+Stable code can be found on the `master` branch
 
 ### Running tests
 
