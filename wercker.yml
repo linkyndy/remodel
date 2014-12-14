@@ -11,12 +11,12 @@ build:
             code: pip install .
         - script:
             name: Install test dependencies
-            code: pip install pytest
+            code: pip install tox
         - script:
             name: Run tests
             code: |
                 export RETHINKDB_HOST=$WERCKER_RETHINKDB_HOST
-                py.test tests/
+                tox
 deploy:
     steps:
         - script:
