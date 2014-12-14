@@ -1,16 +1,10 @@
 import rethinkdb as r
 from rethinkdb.errors import RqlRuntimeError
 from threading import Lock
+from warnings import warn
 
 import connection
 from decorators import synchronized
-
-
-def wrap_document(model_cls, doc):
-    obj = model_cls()
-    # Assign fields this way to skip validation
-    obj.fields.__dict__ = doc
-    return obj
 
 
 def pluralize(what):
@@ -66,3 +60,7 @@ class Counter(object):
     @synchronized(lock)
     def current(self):
         return self.n
+
+
+def deprecation_warning(message):
+    warn(message, DeprecationWarning, stacklevel=2)

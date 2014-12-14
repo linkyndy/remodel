@@ -1,11 +1,11 @@
 import rethinkdb as r
 
-from decorators import classproperty, classaccessonly, classaccessonlyproperty
+from decorators import classaccessonlyproperty
 from errors import OperationError
 from field_handler import FieldHandlerBase, FieldHandler
+from object_handler import ObjectHandler
 from registry import model_registry
-from related import ObjectSet
-from utils import wrap_document, pluralize
+from utils import deprecation_warning, pluralize
 
 
 REL_TYPES = ('has_one', 'has_many', 'belongs_to', 'has_and_belongs_to_many')
@@ -28,10 +28,17 @@ class ModelBase(type):
             '%sFieldHandler' % name,
             (FieldHandler,),
             dict(rel_attrs, model=name))
-
+        object_handler_cls = dct.setdefault('object_handler', ObjectHandler)
+        
         new_class = super_new(cls, name, bases, dct)
         model_registry.register(name, new_class)
+        setattr(new_class, 'objects', object_handler_cls(new_class))
         return new_class
+
+    # Proxies undefined attributes to Model.objects; useful for building
+    # ReQL queries directly on the Model (e.g.: User.order_by('name').run())
+    def __getattr__(cls, name):
+        return getattr(cls.objects, name)
 
 
 class Model(object):
@@ -80,43 +87,6 @@ class Model(object):
         for field in self.fields.related:
             delattr(self.fields, field)
 
-    @classaccessonly
-    def create(cls, **kwargs):
-        obj = cls(**kwargs)
-        obj.save()
-        return obj
-
-    @classaccessonly
-    def get(cls, id_=None, **kwargs):
-        if id_:
-            doc = cls.table.get(id_).run()
-            if doc is not None:
-                return wrap_document(cls, doc)
-            return None
-        try:
-            return list(ObjectSet(cls, (cls.table.filter(kwargs)
-                                        .limit(1).run())))[0]
-        except IndexError:
-            return None
-
-    @classaccessonly
-    def get_or_create(cls, id_=None, **kwargs):
-        obj = cls.get(id_, **kwargs)
-        if obj:
-            return obj, False
-        return cls.create(**kwargs), True
-
-    @classaccessonly
-    def all(cls):
-        return ObjectSet(cls, cls.table.run())
-
-    @classaccessonly
-    def filter(cls, ids=None, **kwargs):
-        if ids:
-            return ObjectSet(cls, (cls.table.get_all(r.args(ids))
-                                   .filter(kwargs).run()))
-        return ObjectSet(cls, cls.table.filter(kwargs).run())
-
     def __getitem__(self, key):
         try:
             return getattr(self.fields, key)
@@ -150,4 +120,7 @@ class Model(object):
 
     @classaccessonlyproperty
     def table(cls):
-        return r.table(cls._table)
+        deprecation_warning('Model.table will be deprecated soon. Please use '
+                            'Model.objects to build any custom query on a '
+                            'Model\'s table (read more about ObjectHandler)')
+        return cls.objects
