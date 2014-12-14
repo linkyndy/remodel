@@ -3,7 +3,7 @@ import models
 from registry import index_registry
 from related import (HasOneDescriptor, BelongsToDescriptor, HasManyDescriptor,
                      HasAndBelongsToManyDescriptor)
-from utils import pluralize
+from utils import tableize
 
 
 class FieldHandlerBase(type):
@@ -40,7 +40,7 @@ class FieldHandlerBase(type):
                 other, field, lkey, rkey = rel
             else:
                 other = rel
-                field, lkey, rkey = pluralize(other.lower()), 'id', '%s_id' % model.lower()
+                field, lkey, rkey = tableize(other), 'id', '%s_id' % model.lower()
             dct[field] = HasManyDescriptor(other, lkey, rkey)
             dct['related'].add(field)
             index_registry.register(other, rkey)
@@ -49,7 +49,7 @@ class FieldHandlerBase(type):
                 other, field, lkey, rkey = rel
             else:
                 other = rel
-                field, lkey, rkey = pluralize(other.lower()), 'id', 'id'
+                field, lkey, rkey = tableize(other), 'id', 'id'
             join_model = '_' + ''.join(sorted([model, other]))
             try:
                 models.ModelBase(join_model, (models.Model,), {})

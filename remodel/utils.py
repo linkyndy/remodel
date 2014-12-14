@@ -1,5 +1,6 @@
 import rethinkdb as r
 from rethinkdb.errors import RqlRuntimeError
+from inflection import pluralize, underscore
 from threading import Lock
 from warnings import warn
 
@@ -7,16 +8,8 @@ import connection
 from decorators import synchronized
 
 
-def pluralize(what):
-    import inflect
-    p = inflect.engine()
-    return p.plural(what)
-
-
-def singularize(what):
-    import inflect
-    p = inflect.engine()
-    return p.singular(what)
+def tableize(what):
+    return pluralize(underscore(what))
 
 
 def create_tables():

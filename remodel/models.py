@@ -5,7 +5,7 @@ from errors import OperationError
 from field_handler import FieldHandlerBase, FieldHandler
 from object_handler import ObjectHandler
 from registry import model_registry
-from utils import deprecation_warning, pluralize
+from utils import deprecation_warning, tableize
 
 
 REL_TYPES = ('has_one', 'has_many', 'belongs_to', 'has_and_belongs_to_many')
@@ -21,7 +21,7 @@ class ModelBase(type):
             return super_new(cls, name, bases, dct)
 
         # Set metadata
-        dct['_table'] = pluralize(name).lower()
+        dct['_table'] = tableize(name)
 
         rel_attrs = {rel: dct.setdefault(rel, ()) for rel in REL_TYPES}
         dct['_field_handler_cls'] = FieldHandlerBase(

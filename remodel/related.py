@@ -3,7 +3,7 @@ import rethinkdb as r
 from decorators import cached_property
 from object_handler import ObjectHandler
 from registry import model_registry
-from utils import pluralize
+from utils import tableize
 
 
 class RelationDescriptor(object):
@@ -160,7 +160,7 @@ class HasManyDescriptor(RelationDescriptor):
         self.model = model
         self.lkey = lkey
         self.rkey = rkey
-        self.related_cache = '_%s_cache' % pluralize(model.lower())
+        self.related_cache = '_%s_cache' % tableize(model)
 
     def __get__(self, instance, owner=None):
         if instance is None:
@@ -274,7 +274,7 @@ class HasAndBelongsToManyDescriptor(RelationDescriptor):
         self.join_model = join_model
         self.mlkey = mlkey
         self.mrkey = mrkey
-        self.related_cache = '_%s_cache' % pluralize(model.lower())
+        self.related_cache = '_%s_cache' % tableize(model)
 
     def __get__(self, instance, owner=None):
         if instance is None:
