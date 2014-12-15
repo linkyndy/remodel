@@ -98,7 +98,7 @@ class City(Model):
 
 romania = Country.create(name='Romania')
 romania['cities'].add(City(name='Timisoara'), City(name='Bucharest'))
-print len(romania['cities'].all()) # prints 2
+print romania['cities'].count() # prints 2
 ```
 
 #### Has and belongs to many
@@ -114,7 +114,7 @@ my_post = Post.create(name='My first post')
 personal_tag = Tag.create(name='personal')
 public_tag = Tag.create(name='public')
 my_post['tags'].add(personal_tag, public_tag)
-print len(my_post['tags'].all()) # prints 2
+print my_post['tags'].count() # prints 2
 ```
 
 #### Has many through
