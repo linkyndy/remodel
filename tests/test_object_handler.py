@@ -170,6 +170,26 @@ class FilterTests(DbBaseTestCase):
         assert len(self.Artist.filter(id='id')) == 0
 
 
+class CountTests(DbBaseTestCase):
+    def setUp(self):
+        super(CountTests, self).setUp()
+
+        class Artist(Model):
+            pass
+        self.Artist = Artist
+
+        create_tables()
+        create_indexes()
+
+    def test_no_objects(self):
+        assert self.Artist.count() == 0
+
+    def test_some_objects(self):
+        self.Artist.create()
+        self.Artist.create()
+        assert self.Artist.count() == 2
+
+
 class WrapTests(DbBaseTestCase):
     def setUp(self):
         super(WrapTests, self).setUp()

@@ -52,6 +52,9 @@ class ObjectHandler(object):
             query = self.query.filter(kwargs)
         return ObjectSet(self, query)
 
+    def count(self):
+        return self.query.count().run()
+
     def _wrap(self, doc):
         obj = self.model_cls()
         # Assign fields this way to skip validation

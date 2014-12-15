@@ -453,6 +453,18 @@ class RelatedSetTests(DbBaseTestCase):
         a.save()
         assert a['songs'].get_or_create(name='My Song')[1] is True
 
+    def test_count_no_objects(self):
+        a = self.Artist()
+        a.save()
+        assert a['songs'].count() == 0
+
+    def test_count_some_objects(self):
+        a = self.Artist()
+        a.save()
+        a['songs'].create()
+        a['songs'].create()
+        assert a['songs'].count() == 2
+
     def test_add_with_invalid_object(self):
         a = self.Artist()
         a.save()
@@ -834,6 +846,18 @@ class RelatedM2MSetTests(DbBaseTestCase):
         a = self.Artist()
         a.save()
         assert a['tastes'].get_or_create(name='My Taste')[1] is True
+
+    def test_count_no_objects(self):
+        a = self.Artist()
+        a.save()
+        assert a['tastes'].count() == 0
+
+    def test_count_some_objects(self):
+        a = self.Artist()
+        a.save()
+        a['tastes'].create()
+        a['tastes'].create()
+        assert a['tastes'].count() == 2
 
     def test_add_with_invalid_object(self):
         a = self.Artist()
