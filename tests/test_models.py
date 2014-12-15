@@ -4,6 +4,7 @@ import unittest
 
 from remodel.errors import OperationError
 from remodel.models import Model
+from remodel.object_handler import ObjectHandler
 from remodel.registry import model_registry
 from remodel.related import (HasOneDescriptor, BelongsToDescriptor,
                              HasManyDescriptor, HasAndBelongsToManyDescriptor)
@@ -23,6 +24,25 @@ class ModelTests(BaseTestCase):
         assert hasattr(Artist, 'has_and_belongs_to_many')
         assert hasattr(Artist, 'belongs_to')
         assert hasattr(Artist, '_field_handler_cls')
+        assert hasattr(Artist, 'object_handler')
+        assert hasattr(Artist, 'objects')
+
+    def test_default_object_handler_cls(self):
+        class Artist(Model):
+            pass
+
+        assert Artist.object_handler == ObjectHandler
+        assert isinstance(Artist.objects, ObjectHandler)
+
+    def test_custom_object_handler_cls(self):
+        class CustomObjectHandler(ObjectHandler):
+            pass
+
+        class Artist(Model):
+            object_handler = CustomObjectHandler
+
+        assert Artist.object_handler == CustomObjectHandler
+        assert isinstance(Artist.objects, CustomObjectHandler)
 
 
 class FieldTests(BaseTestCase):
@@ -267,89 +287,3 @@ class DeleteTests(DbBaseTestCase):
             a.delete()
 
     # TODO: Add tests for confirming that related objects have no reference left to the deleted object
-
-
-class GetTests(DbBaseTestCase):
-    def setUp(self):
-        super(GetTests, self).setUp()
-
-        class Artist(Model):
-            pass
-        self.Artist = Artist
-
-        create_tables()
-        create_indexes()
-
-    def test_by_id(self):
-        a = self.Artist()
-        a.save()
-        assert self.Artist.get(a['id']).fields.as_dict() == a.fields.as_dict()
-
-    def test_by_kwargs(self):
-        a = self.Artist(name='Andrei', country='Romania')
-        a.save()
-        assert self.Artist.get(name='Andrei', country='Romania').fields.as_dict() == a.fields.as_dict()
-
-    def test_by_id_inexistent(self):
-        assert self.Artist.get('id') is None
-
-    def test_by_kwargs_inexistent(self):
-        assert self.Artist.get(name='inexistent') is None
-
-
-class AllTests(DbBaseTestCase):
-    def setUp(self):
-        super(AllTests, self).setUp()
-
-        class Artist(Model):
-            pass
-        self.Artist = Artist
-
-        create_tables()
-        create_indexes()
-
-    def test_no_objects(self):
-        assert len(list(self.Artist.all())) == 0
-
-    def test_some_objects(self):
-        self.Artist.create()
-        self.Artist.create()
-        assert len(list(self.Artist.all())) == 2
-
-    def test_some_objects_deleted(self):
-        a = self.Artist.create()
-        self.Artist.create()
-        a.delete()
-        assert len(list(self.Artist.all())) == 1
-
-
-class FilterTests(DbBaseTestCase):
-    def setUp(self):
-        super(FilterTests, self).setUp()
-
-        class Artist(Model):
-            pass
-        self.Artist = Artist
-
-        create_tables()
-        create_indexes()
-
-    def test_no_objects(self):
-        assert len(list(self.Artist.filter(id='id'))) == 0
-
-    def test_some_objects_valid_filter(self):
-        a = self.Artist.create()
-        self.Artist.create()
-        assert len(list(self.Artist.filter(id=a['id']))) == 1
-
-    def test_some_objects_deleted_valid_filter(self):
-        a = self.Artist.create()
-        a_id = a['id']
-        self.Artist.create()
-        a.delete()
-        assert len(list(self.Artist.filter(id=a_id))) == 0
-
-    def test_some_objects_invalid_filter(self):
-        self.Artist.create()
-        self.Artist.create()
-        assert len(list(self.Artist.filter(id='id'))) == 0

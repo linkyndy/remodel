@@ -13,7 +13,7 @@ def get_env_settings():
     settings = {}
     settings['host'] = os.environ.get('RETHINKDB_HOST', None)
     settings['port'] = os.environ.get('RETHINKDB_PORT', None)
-    settings['auth'] = os.environ.get('RETHINKDB_AUTH', None)
+    settings['auth_key'] = os.environ.get('RETHINKDB_AUTH_KEY', None)
     settings['db'] = os.environ.get('RETHINKDB_DB', None)
     return {k: v for k, v in settings.items() if v is not None}
 

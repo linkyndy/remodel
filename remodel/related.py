@@ -1,8 +1,9 @@
 import rethinkdb as r
 
 from decorators import cached_property
+from object_handler import ObjectHandler
 from registry import model_registry
-from utils import wrap_document, pluralize
+from utils import tableize
 
 
 class RelationDescriptor(object):
@@ -103,20 +104,23 @@ class BelongsToDescriptor(RelationDescriptor):
         self.__set__(instance, None)
 
 
-def create_related_set_cls(model_cls, lkey, rkey):
-    class RelatedSet(object):
+def create_related_object_handler_cls(model_cls, lkey, rkey):
+    class RelatedObjectHandler(ObjectHandler):
         def __init__(self, parent):
+            super(RelatedObjectHandler, self).__init__(model_cls)
             # Parent field handler instance
             self.parent = parent
-            self.query = (model_cls.table
-                          .get_all(self._get_parent_lkey(), index=rkey))
+            self.query = self.query.get_all(self._get_parent_lkey(), index=rkey)
 
-        def all(self):
-            return ObjectSet(model_cls, self.query.run())
+        def create(self, **kwargs):
+            obj = super(RelatedObjectHandler, self).create(**kwargs)
+            self.add(obj)
+            return obj
 
-        def filter(self, **kwargs):
-            return ObjectSet(model_cls, (self.query.filter(kwargs)
-                                         .run()))
+        def get_or_create(self, id_=None, **kwargs):
+            obj, created = super(RelatedObjectHandler, self).get_or_create(id_, **kwargs)
+            self.add(obj)
+            return obj, created
 
         def add(self, *objs):
             for obj in objs:
@@ -148,7 +152,7 @@ def create_related_set_cls(model_cls, lkey, rkey):
                                  'instance isn\'t saved' % model_cls.__name__)
             return parent_lkey
 
-    return RelatedSet
+    return RelatedObjectHandler
 
 
 class HasManyDescriptor(RelationDescriptor):
@@ -156,7 +160,7 @@ class HasManyDescriptor(RelationDescriptor):
         self.model = model
         self.lkey = lkey
         self.rkey = rkey
-        self.related_cache = '_%s_cache' % pluralize(model.lower())
+        self.related_cache = '_%s_cache' % tableize(model)
 
     def __get__(self, instance, owner=None):
         if instance is None:
@@ -164,42 +168,46 @@ class HasManyDescriptor(RelationDescriptor):
         try:
             return getattr(instance, self.related_cache)
         except AttributeError:
-            rel_set = self.related_set_cls(instance)
+            rel_object_handler = self.related_object_handler_cls(instance)
             # Make related set available on parent (this) e.g.: artist.songs
-            setattr(instance, self.related_cache, rel_set)
-            return rel_set
+            setattr(instance, self.related_cache, rel_object_handler)
+            return rel_object_handler
 
     def __set__(self, instance, value):
-        rel_set = self.__get__(instance)
-        rel_set.clear()
-        rel_set.add(*value)
+        rel_object_handler = self.__get__(instance)
+        rel_object_handler.clear()
+        rel_object_handler.add(*value)
 
     def __delete__(self, instance):
-        rel_set = self.__get__(instance)
-        rel_set.clear()
+        rel_object_handler = self.__get__(instance)
+        rel_object_handler.clear()
 
     @cached_property
-    def related_set_cls(self):
-        return create_related_set_cls(self.model_cls, self.lkey, self.rkey)
+    def related_object_handler_cls(self):
+        return create_related_object_handler_cls(self.model_cls, self.lkey, self.rkey)
 
 
-def create_related_m2m_set_cls(model_cls, lkey, rkey, join_model_cls, mlkey, mrkey):
-    class RelatedM2MSet(object):
+def create_related_m2m_object_handler_cls(model_cls, lkey, rkey, join_model_cls, mlkey, mrkey):
+    class RelatedM2MObjectHandler(ObjectHandler):
         def __init__(self, parent):
+            super(RelatedM2MObjectHandler, self).__init__(model_cls)
             # Parent field handler instance
             self.parent = parent
             # Returns all docs from model_cls which are referenced in join_model_cls
-            self.query = (join_model_cls.table
+            self.query = (r.table(join_model_cls._table)
                           .get_all(self._get_parent_lkey(), index=mlkey)
-                          .eq_join(mrkey, model_cls.table, index=rkey)
+                          .eq_join(mrkey, r.table(model_cls._table), index=rkey)
                           .map(lambda res: res['right']))
 
-        def all(self):
-            return ObjectSet(model_cls, self.query.run())
+        def create(self, **kwargs):
+            obj = super(RelatedM2MObjectHandler, self).create(**kwargs)
+            self.add(obj)
+            return obj
 
-        def filter(self, **kwargs):
-            return ObjectSet(model_cls, (self.query.filter(kwargs)
-                                         .run()))
+        def get_or_create(self, id_=None, **kwargs):
+            obj, created = super(RelatedM2MObjectHandler, self).get_or_create(id_, **kwargs)
+            self.add(obj)
+            return obj, created
 
         def add(self, *objs):
             new_keys = set()
@@ -255,7 +263,7 @@ def create_related_m2m_set_cls(model_cls, lkey, rkey, join_model_cls, mlkey, mrk
                                  'instance isn\'t saved' %  model_cls.__name__)
             return parent_lkey
 
-    return RelatedM2MSet
+    return RelatedM2MObjectHandler
 
 
 class HasAndBelongsToManyDescriptor(RelationDescriptor):
@@ -266,7 +274,7 @@ class HasAndBelongsToManyDescriptor(RelationDescriptor):
         self.join_model = join_model
         self.mlkey = mlkey
         self.mrkey = mrkey
-        self.related_cache = '_%s_cache' % pluralize(model.lower())
+        self.related_cache = '_%s_cache' % tableize(model)
 
     def __get__(self, instance, owner=None):
         if instance is None:
@@ -274,31 +282,26 @@ class HasAndBelongsToManyDescriptor(RelationDescriptor):
         try:
             return getattr(instance, self.related_cache)
         except AttributeError:
-            rel_m2m_set = self.related_m2m_set_cls(instance)
+            rel_m2m_object_handler = self.related_m2m_object_handler_cls(instance)
             # Make related set available on parent (this) e.g.: user.artists
-            setattr(instance, self.related_cache, rel_m2m_set)
-            return rel_m2m_set
+            setattr(instance, self.related_cache, rel_m2m_object_handler)
+            return rel_m2m_object_handler
 
     def __set__(self, instance, value):
-        rel_m2m_set = self.__get__(instance)
-        rel_m2m_set.clear()
-        rel_m2m_set.add(*value)
+        rel_m2m_object_handler = self.__get__(instance)
+        rel_m2m_object_handler.clear()
+        rel_m2m_object_handler.add(*value)
 
     def __delete__(self, instance):
-        rel_m2m_set = self.__get__(instance)
-        rel_m2m_set.clear()
+        rel_m2m_object_handler = self.__get__(instance)
+        rel_m2m_object_handler.clear()
 
     @cached_property
-    def related_m2m_set_cls(self):
-        return create_related_m2m_set_cls(
+    def related_m2m_object_handler_cls(self):
+        return create_related_m2m_object_handler_cls(
             self.model_cls, self.lkey, self.rkey,
             self.join_model_cls, self.mlkey, self.mrkey)
 
     @property
     def join_model_cls(self):
         return model_registry.get(self.join_model)
-
-
-def ObjectSet(cls, cursor):
-    for doc in cursor:
-        yield wrap_document(cls, doc)

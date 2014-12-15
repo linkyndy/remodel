@@ -98,7 +98,7 @@ class City(Model):
 
 romania = Country.create(name='Romania')
 romania['cities'].add(City(name='Timisoara'), City(name='Bucharest'))
-print len(list(romania['cities'].all())) # prints 2
+print romania['cities'].count() # prints 2
 ```
 
 #### Has and belongs to many
@@ -114,7 +114,7 @@ my_post = Post.create(name='My first post')
 personal_tag = Tag.create(name='personal')
 public_tag = Tag.create(name='public')
 my_post['tags'].add(personal_tag, public_tag)
-print len(list(my_post['tags'].all())) # prints 2
+print my_post['tags'].count() # prints 2
 ```
 
 #### Has many through
@@ -145,7 +145,7 @@ class Celebrity(Model):
 
 Celebrity.create(name='george clooney')
 Celebrity.create(name='kate winslet')
-upper = Celebrity.table.map({'name': r.row['name'].upcase()}).run()
+upper = Celebrity.map({'name': r.row['name'].upcase()}).run()
 print list(upper) # prints [{u'name': u'GEORGE CLOONEY'}, {u'name': u'KATE WINSLET'}]
 ```
 
@@ -164,18 +164,19 @@ jack.is_minor() # prints True
 ### Custom class methods
 
 ```python
-from remodel.decorators import classaccessonly
-from remodel.related import ObjectSet
+from remodel.object_handler import ObjectHandler, ObjectSet
+
+class TripObjectHandler(ObjectHandler):
+    def in_europe(self):
+        return ObjectSet(self, self.query.filter({'continent': 'Europe'}))
 
 class Trip(Model):
-    @classaccessonly
-    def in_europe(cls):
-        return ObjectSet(cls, cls.table.filter({'continent': 'Europe'}).run())
+    object_handler = TripObjectHandler
 
 Trip.create(continent='Europe', city='Paris')
 Trip.create(continent='Asia', city='Shanghai')
 Trip.create(continent='Europe', city='Dublin')
-print len(list(Trip.in_europe())) # prints 2
+print len(Trip.in_europe()) # prints 2
 ```
 
 ### Viewing object fields
@@ -242,7 +243,13 @@ Remodel is under active development and it is not yet production-ready. Any cont
 
 ### How to contribute
 
-Just fork this repository, do your magic and submit a pull request!
+Just fork this repository, do your magic and submit a pull request on the development branch!
+
+### Branches
+
+Active development and up-to-date code can be found on the `develop` branch
+
+Stable code can be found on the `master` branch
 
 ### Running tests
 
