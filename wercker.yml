@@ -10,6 +10,9 @@ build:
             name: Install remodel
             code: pip install .
         - script:
+            name: Install six
+            code: pip install six
+        - script:
             name: Install test dependencies
             code: pip install tox
         - script:
