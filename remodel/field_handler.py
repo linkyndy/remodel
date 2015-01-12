@@ -1,14 +1,14 @@
-from errors import AlreadyRegisteredError
-import models
-from registry import index_registry
-from related import (HasOneDescriptor, BelongsToDescriptor, HasManyDescriptor,
+from .errors import AlreadyRegisteredError
+import remodel.models
+from .registry import index_registry
+from .related import (HasOneDescriptor, BelongsToDescriptor, HasManyDescriptor,
                      HasAndBelongsToManyDescriptor)
-from utils import tableize
+from .utils import tableize
 
 
 class FieldHandlerBase(type):
     def __new__(cls, name, bases, dct):
-        if not all(isinstance(dct[rel_type], tuple) for rel_type in models.REL_TYPES):
+        if not all(isinstance(dct[rel_type], tuple) for rel_type in remodel.models.REL_TYPES):
             raise ValueError('Related models must be passed as a tuple')
 
         # TODO: Find a way to pass model class to its field handler class
@@ -52,7 +52,7 @@ class FieldHandlerBase(type):
                 field, lkey, rkey = tableize(other), 'id', 'id'
             join_model = '_' + ''.join(sorted([model, other]))
             try:
-                models.ModelBase(join_model, (models.Model,), {})
+                remodel.models.ModelBase(join_model, (remodel.models.Model,), {})
             except AlreadyRegisteredError:
                 # HABTM join_model model has been registered, probably from the
                 # other end of the relation

@@ -1,6 +1,5 @@
 import pytest
 import rethinkdb as r
-import unittest
 
 from remodel.errors import OperationError
 from remodel.models import Model
@@ -10,7 +9,7 @@ from remodel.related import (HasOneDescriptor, BelongsToDescriptor,
                              HasManyDescriptor, HasAndBelongsToManyDescriptor)
 from remodel.utils import create_tables, create_indexes
 
-from . import BaseTestCase, DbBaseTestCase
+from tests.__init__ import BaseTestCase, DbBaseTestCase
 
 
 class ModelTests(BaseTestCase):

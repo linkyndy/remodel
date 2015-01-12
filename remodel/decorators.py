@@ -1,4 +1,4 @@
-class cached_property(object):
+class CachedProperty(object):
     def __init__(self, func):
         self.func = func
         self.name = func.__name__
@@ -13,7 +13,7 @@ class cached_property(object):
         return result
 
 
-class classproperty(object):
+class ClassProperty(object):
     def __init__(self, func):
         self.func = func
 
@@ -21,7 +21,7 @@ class classproperty(object):
         return self.func(owner)
 
 
-class classaccessonlyproperty(object):
+class ClassAccessOnlyProperty(object):
     def __init__(self, func):
         self.func = func
 
@@ -32,7 +32,7 @@ class classaccessonlyproperty(object):
         return self.func(owner)
 
 
-class classaccessonly(object):
+class ClassAccessOnly(object):
     def __init__(self, func):
         self.func = func
 

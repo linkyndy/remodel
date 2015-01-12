@@ -1,8 +1,13 @@
+
 import rethinkdb as r
 from contextlib import contextmanager
-from Queue import Queue, Empty
+try:
+    from queue import Queue, Empty
+except ImportError:
+    from Queue import Queue, Empty
 
-from utils import Counter
+
+from .utils import Counter
 
 
 class Connection(object):

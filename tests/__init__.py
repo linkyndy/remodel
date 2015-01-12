@@ -15,7 +15,7 @@ def get_env_settings():
     settings['port'] = os.environ.get('RETHINKDB_PORT', None)
     settings['auth_key'] = os.environ.get('RETHINKDB_AUTH_KEY', None)
     settings['db'] = os.environ.get('RETHINKDB_DB', None)
-    return {k: v for k, v in settings.items() if v is not None}
+    return {k: v for k, v in list(settings.items()) if v is not None}
 
 
 pool.configure(max_connections=1, **get_env_settings())

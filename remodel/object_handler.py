@@ -74,7 +74,7 @@ class ObjectSet(object):
 
     def __len__(self):
         self._fetch_results()
-        return len(self.result_cache)
+        return len(list(self.result_cache))
 
     def __getitem__(self, key):
         self._fetch_results()

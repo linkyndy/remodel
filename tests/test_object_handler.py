@@ -11,7 +11,7 @@ from remodel.related import (HasOneDescriptor, BelongsToDescriptor,
                              HasManyDescriptor, HasAndBelongsToManyDescriptor)
 from remodel.utils import create_tables, create_indexes
 
-from . import BaseTestCase, DbBaseTestCase
+from tests.__init__ import BaseTestCase, DbBaseTestCase
 
 
 class AllTests(DbBaseTestCase):
