@@ -1,7 +1,8 @@
 remodel
 =======
 
-[![wercker status](https://app.wercker.com/status/572156625000100a804563e52fbe3dfd/s/master "wercker status")](https://app.wercker.com/project/bykey/572156625000100a804563e52fbe3dfd)
+[![wercker status](https://app.wercker.com/status/6bb7e818f8c1efd7ca9bc4bce91a59de/m "wercker status")](https://app.wercker.com/project/bykey/6bb7e818f8c1efd7ca9bc4bce91a59de)
+
 
 Very simple yet powerful and extensible Object Document Mapper for RethinkDB, written in Python.
 
