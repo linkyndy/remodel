@@ -10,8 +10,8 @@ build:
             name: Install remodel
             code: pip install .
         - script:
-            name: Install dateutil
-            code: pip install dateutil
+            name: Install six
+            code: pip install six 1.9.0
         - script:
             name: Install test dependencies
             code: pip install tox
