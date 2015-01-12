@@ -11,7 +11,7 @@ build:
             code: pip install .
         - script:
             name: Install six
-            code: pip --upgrade install six
+            code: pip install --upgrade six
         - script:
             name: Install test dependencies
             code: pip install tox
