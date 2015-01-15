@@ -1,7 +1,7 @@
 import rethinkdb as r
 from six import add_metaclass
 
-from .decorators import ClassAccessOnlyProperty
+from .decorators import classaccessonlyproperty
 from .errors import OperationError
 from .field_handler import FieldHandlerBase, FieldHandler
 from .object_handler import ObjectHandler
@@ -46,7 +46,7 @@ class Model(object):
     def __init__(self, **kwargs):
         self.fields = self._field_handler_cls()
 
-        for key, value in list(kwargs.items()):
+        for key, value in kwargs.items():
             # Assign fields this way to be sure that validation takes place
             setattr(self.fields, key, value)
 
@@ -117,7 +117,7 @@ class Model(object):
     def __str__(self):
         return '<%s object>' % self.__class__.__name__
 
-    @ClassAccessOnlyProperty
+    @classaccessonlyproperty
     def table(self):
         deprecation_warning('Model.table will be deprecated soon. Please use '
                             'Model.objects to build any custom query on a '

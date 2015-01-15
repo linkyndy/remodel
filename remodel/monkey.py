@@ -1,7 +1,7 @@
 import rethinkdb as r
 
 import remodel.connection
-import rethinkdb.ast
+
 
 run = r.ast.RqlQuery.run
 

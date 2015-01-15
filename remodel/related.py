@@ -1,6 +1,6 @@
 import rethinkdb as r
 
-from .decorators import CachedProperty
+from .decorators import cached_property
 from .object_handler import ObjectHandler
 from .registry import model_registry
 from .utils import tableize
@@ -182,7 +182,7 @@ class HasManyDescriptor(RelationDescriptor):
         rel_object_handler = self.__get__(instance)
         rel_object_handler.clear()
 
-    @CachedProperty
+    @cached_property
     def related_object_handler_cls(self):
         return create_related_object_handler_cls(self.model_cls, self.lkey, self.rkey)
 
@@ -296,7 +296,7 @@ class HasAndBelongsToManyDescriptor(RelationDescriptor):
         rel_m2m_object_handler = self.__get__(instance)
         rel_m2m_object_handler.clear()
 
-    @CachedProperty
+    @cached_property
     def related_m2m_object_handler_cls(self):
         return create_related_m2m_object_handler_cls(
             self.model_cls, self.lkey, self.rkey,
