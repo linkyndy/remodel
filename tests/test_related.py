@@ -1,5 +1,4 @@
 import pytest
-import unittest
 
 from remodel.connection import get_conn
 from remodel.models import Model
@@ -7,7 +6,7 @@ from remodel.related import (HasOneDescriptor, BelongsToDescriptor,
                              HasManyDescriptor, HasAndBelongsToManyDescriptor)
 from remodel.utils import create_tables, create_indexes
 
-from tests.__init__ import BaseTestCase, DbBaseTestCase
+from . import BaseTestCase, DbBaseTestCase
 
 # TODO: Ensure models are saved/retrieved correctly by performing direct queries
 

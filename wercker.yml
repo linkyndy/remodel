@@ -5,13 +5,10 @@ services:
 build:
     steps:
         - virtualenv:
-            install_wheel: true
+            install_wheel: false
         - script:
             name: Install remodel
             code: pip install .
-        - script:
-            name: Install python-dateutil (for six)
-            code: pip install python-dateutil
         - script:
             name: Install test dependencies
             code: pip install tox
@@ -20,4 +17,12 @@ build:
             code: |
                 export RETHINKDB_HOST=$WERCKER_RETHINKDB_HOST
                 tox
-
+deploy:
+    steps:
+        - script:
+            name: PyPI upload
+            code: |
+                echo "[server-login]" > ~/.pypirc
+                echo "username:$PYPI_USER" >> ~/.pypirc
+                echo "password:$PYPI_PASSWORD" >> ~/.pypirc
+                python setup.py sdist upload

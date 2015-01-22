@@ -9,7 +9,6 @@ from remodel.registry import model_registry, index_registry
 from remodel.utils import create_tables
 
 
-
 def get_env_settings():
     settings = {}
     settings['host'] = os.environ.get('RETHINKDB_HOST', None)

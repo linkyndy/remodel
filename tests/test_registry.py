@@ -5,7 +5,7 @@ from remodel.errors import AlreadyRegisteredError
 from remodel.models import Model
 from remodel.registry import ModelRegistry, IndexRegistry
 
-from tests.__init__ import BaseTestCase
+from . import BaseTestCase
 
 
 class ModelRegistryTests(BaseTestCase):
