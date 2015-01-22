@@ -1,9 +1,9 @@
 import rethinkdb as r
 
-from decorators import cached_property
-from object_handler import ObjectHandler
-from registry import model_registry
-from utils import tableize
+from .decorators import cached_property
+from .object_handler import ObjectHandler
+from .registry import model_registry
+from .utils import tableize
 
 
 class RelationDescriptor(object):
