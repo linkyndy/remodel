@@ -233,31 +233,22 @@ shop.add(product1, produt2)
 
 > Note that certain assignments of related objects can not be performed unless one (or both) of the objects is saved. You can not save a `GiftSize` with a `Gift` attached without saving the `Gift` object first (when having a `GiftSize belongs_to Gift`).
 
+## Documentation
+
+Can be found at https://github.com/linkyndy/remodel/wiki.
+
 ## Motivation
 
 The main reason for Remodel's existence was the need of a light-weight ODM for RethinkDB, one that doesn't force you to ensure a document schema, one that provides a familiar interface and one that gracefully handles relations between models.
 
-## Development
+## Status
 
-Remodel is under active development and it is not yet production-ready. Any contribution is highly appreciated, no matter it is a small bug fix, feature implementation or a typo in the docs.
+Remodel is under active development and it is not _yet_ production-ready. 
 
-### How to contribute
+## How to contribute?
 
-Just fork this repository, do your magic and submit a pull request on the development branch!
+Any contribution is **highly** appreciated! See [CONTRIBUTING.rst](CONTRIBUTING.rst) for more details.
 
-### Branches
+## License
 
-Active development and up-to-date code can be found on the `develop` branch
-
-Stable code can be found on the `master` branch
-
-### Running tests
-
-```bash
-pip install pytest
-py.test tests/
-```
-
-### Tracking issues
-
-All Remodel issues/feature requests/bugs/questions can be addressed on https://github.com/linkyndy/remodel/issues
+See [LICENSE](LICENSE)
