@@ -3,9 +3,8 @@ from rethinkdb.errors import RqlRuntimeError
 from inflection import pluralize, underscore
 from threading import Lock
 from warnings import warn
-
-import connection
-from decorators import synchronized
+import remodel.connection
+from .decorators import synchronized
 
 
 def tableize(what):
@@ -13,18 +12,18 @@ def tableize(what):
 
 
 def create_tables():
-    from registry import model_registry
+    from .registry import model_registry
 
-    for model_cls in model_registry.all().itervalues():
+    for model_cls in model_registry.all().values():
         result = r.table_create(model_cls._table).run()
         if result['created'] != 1:
             raise RuntimeError('Could not create table %s for model %s' % (
                                model_cls._table, model_cls.__name__))
 
 def create_indexes():
-    from registry import model_registry, index_registry
+    from .registry import model_registry, index_registry
 
-    for model, index_set in index_registry.all().iteritems():
+    for model, index_set in index_registry.all().items():
         model_cls = model_registry.get(model)
         for index in index_set:
             r.table(model_cls._table).index_create(index).run()

@@ -1,6 +1,5 @@
 import pytest
 import rethinkdb as r
-import unittest
 
 from remodel.errors import OperationError
 from remodel.models import Model

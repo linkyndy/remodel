@@ -1,2 +1,6 @@
-class OperationError(Exception): pass
-class AlreadyRegisteredError(Exception): pass
+class OperationError(Exception):
+    pass
+
+
+class AlreadyRegisteredError(Exception):
+    pass

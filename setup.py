@@ -24,7 +24,8 @@ setup(
     platforms='any',
     install_requires=[
         'rethinkdb',
-        'inflection'
+        'inflection',
+        'six'
     ],
     classifiers=[
         'Environment :: Web Environment',

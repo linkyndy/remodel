@@ -1,6 +1,6 @@
 import rethinkdb as r
 
-import connection
+import remodel.connection
 
 
 run = r.ast.RqlQuery.run
@@ -12,7 +12,7 @@ def remodel_run(self, c=None, **global_optargs):
     """
 
     if not c:
-        with connection.get_conn() as conn:
+        with remodel.connection.get_conn() as conn:
             return run(self, conn, **global_optargs)
     else:
         return run(self, c, **global_optargs)

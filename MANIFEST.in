@@ -1,1 +1,4 @@
+include AUTHORS
+include CONTRIBUTING.rst
 include LICENSE
+include README.md

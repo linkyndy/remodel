@@ -1,24 +1,25 @@
 import rethinkdb as r
+from six import add_metaclass
 
-from decorators import classaccessonlyproperty
-from errors import OperationError
-from field_handler import FieldHandlerBase, FieldHandler
-from object_handler import ObjectHandler
-from registry import model_registry
-from utils import deprecation_warning, tableize
+from .decorators import classaccessonlyproperty
+from .errors import OperationError
+from .field_handler import FieldHandlerBase, FieldHandler
+from .object_handler import ObjectHandler
+from .registry import model_registry
+from .utils import deprecation_warning, tableize
 
 
 REL_TYPES = ('has_one', 'has_many', 'belongs_to', 'has_and_belongs_to_many')
 
 
 class ModelBase(type):
-    def __new__(cls, name, bases, dct):
-        super_new = super(ModelBase, cls).__new__
+    def __new__(mcs, name, bases, dct):
+        super_new = super(ModelBase, mcs).__new__
 
         # Ensure the following are not done for the Model class itself
         parents = [b for b in bases if isinstance(b, ModelBase)]
         if not parents:
-            return super_new(cls, name, bases, dct)
+            return super_new(mcs, name, bases, dct)
 
         # Set metadata
         dct['_table'] = tableize(name)
@@ -30,20 +31,18 @@ class ModelBase(type):
             dict(rel_attrs, model=name))
         object_handler_cls = dct.setdefault('object_handler', ObjectHandler)
         
-        new_class = super_new(cls, name, bases, dct)
+        new_class = super_new(mcs, name, bases, dct)
         model_registry.register(name, new_class)
         setattr(new_class, 'objects', object_handler_cls(new_class))
         return new_class
 
     # Proxies undefined attributes to Model.objects; useful for building
     # ReQL queries directly on the Model (e.g.: User.order_by('name').run())
-    def __getattr__(cls, name):
-        return getattr(cls.objects, name)
+    def __getattr__(self, name):
+        return getattr(self.objects, name)
 
-
+@add_metaclass(ModelBase)
 class Model(object):
-    __metaclass__ = ModelBase
-
     def __init__(self, **kwargs):
         self.fields = self._field_handler_cls()
 
@@ -57,9 +56,9 @@ class Model(object):
             # Attempt update
             id_ = fields_dict['id']
             result = (r.table(self._table).get(id_).replace(r.row
-                        .without(r.row.keys().difference(fields_dict.keys()))
-                        .merge(fields_dict), return_changes=True)
-                      .run())
+                        .without(r.row.keys().difference(list(fields_dict.keys())))
+                        .merge(fields_dict), return_changes=True).run())
+
         except KeyError:
             # Resort to insert
             result = (r.table(self._table).insert(fields_dict, return_changes=True)
@@ -119,8 +118,8 @@ class Model(object):
         return '<%s object>' % self.__class__.__name__
 
     @classaccessonlyproperty
-    def table(cls):
+    def table(self):
         deprecation_warning('Model.table will be deprecated soon. Please use '
                             'Model.objects to build any custom query on a '
                             'Model\'s table (read more about ObjectHandler)')
-        return cls.objects
+        return self.objects
