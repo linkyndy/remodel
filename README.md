@@ -247,7 +247,7 @@ Remodel is under active development and it is not _yet_ production-ready.
 
 ## How to contribute?
 
-Any contribution is **highly** appreciated! See [CONTRIBUTING.rst](CONTRIBUTING.rst) for more details.
+Any contribution is **highly** appreciated! See [CONTRIBUTING.md](CONTRIBUTING.md) for more details.
 
 ## License
 
