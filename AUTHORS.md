@@ -1,12 +1,10 @@
 Credits
 =======
 
-Development Lead
-----------------
+## Development Lead
 
 * Andrei Horak (@linkyndy)
 
-Contributors
-------------
+## Contributors
 
 * Bob Jordan (@smewp)

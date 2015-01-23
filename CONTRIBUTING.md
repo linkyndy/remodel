@@ -1,4 +1,3 @@
-============
 Contributing
 ============
 
@@ -13,10 +12,10 @@ You can contribute in many ways:
 * simply tell us what you love about remodel or what you'd like to see in it!
 
 
-Getting Started!
-----------------
+## Getting Started!
 
 **Fork** this repo, `pip install -e .` the project, do your magic, `tox` and submit a pull request on the **develop** branch!
 
 > Issues, features, bugs and questions are tracked at https://github.com/linkyndy/remodel/issues
+
 > Documentation is found at https://github.com/linkyndy/remodel/wiki
