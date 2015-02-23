@@ -86,6 +86,12 @@ class Model(object):
         for field in self.fields.related:
             delattr(self.fields, field)
 
+    def get(self, key, default=None):
+        try:
+            return getattr(self.fields, key)
+        except AttributeError:
+            return default
+
     def __getitem__(self, key):
         try:
             return getattr(self.fields, key)

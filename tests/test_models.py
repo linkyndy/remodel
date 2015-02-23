@@ -286,3 +286,24 @@ class DeleteTests(DbBaseTestCase):
             a.delete()
 
     # TODO: Add tests for confirming that related objects have no reference left to the deleted object
+
+
+class GetTests(BaseTestCase):
+    def setUp(self):
+        super(GetTests, self).setUp()
+
+        class Artist(Model):
+            pass
+        self.Artist = Artist
+
+    def test_existing_field(self):
+        a = self.Artist(name='Andrei')
+        assert a.get('name') == 'Andrei'
+
+    def test_inexisting_field_with_default(self):
+        a = self.Artist()
+        assert a.get('name', 'Andrei') == 'Andrei'
+
+    def test_inexisting_field_without_default(self):
+        a = self.Artist()
+        assert a.get('name') is None
