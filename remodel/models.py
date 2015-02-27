@@ -1,7 +1,7 @@
 import rethinkdb as r
 from six import add_metaclass
 
-from .decorators import classaccessonlyproperty
+from .decorators import classaccessonlyproperty, dispatch_to_metaclass
 from .errors import OperationError
 from .field_handler import FieldHandlerBase, FieldHandler
 from .object_handler import ObjectHandler
@@ -86,6 +86,8 @@ class Model(object):
         for field in self.fields.related:
             delattr(self.fields, field)
 
+    # TODO: Get rid of this nasty decorator after renaming .get() on ObjectHandler
+    @dispatch_to_metaclass
     def get(self, key, default=None):
         try:
             return getattr(self.fields, key)
