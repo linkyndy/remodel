@@ -70,6 +70,13 @@ class Model(object):
         # Force overwrite so that related caches are flushed
         self.fields.__dict__ = result['changes'][0]['new_val']
 
+    def update(self, **kwargs):
+        for key, value in kwargs.items():
+            # Assign fields this way to be sure that validation takes place
+            setattr(self.fields, key, value)
+
+        self.save()
+
     def delete(self):
         try:
             id_ = getattr(self.fields, 'id')

@@ -307,3 +307,62 @@ class GetTests(BaseTestCase):
     def test_inexisting_field_without_default(self):
         a = self.Artist()
         assert a.get('name') is None
+
+
+class UpdateTests(DbBaseTestCase):
+    def setUp(self):
+        super(UpdateTests, self).setUp()
+
+        class Artist(Model):
+            pass
+        self.Artist = Artist
+
+        create_tables()
+        create_indexes()
+
+    def assert_updated(self, table, fields):
+        assert len(list(r.table(table).filter(fields).run())) == 1
+
+    def test_one_field_updated(self):
+        a = self.Artist()
+        a.update(name='Andrei')
+        assert 'name' in a
+        assert a['name'] == 'Andrei'
+
+    def test_several_fields_updated(self):
+        a = self.Artist()
+        a.update(name='Andrei', country='Romania', height='tall')
+        assert 'name' in a and 'country' in a and 'height' in a
+        assert (a['name'] == 'Andrei' and
+                a['country'] == 'Romania' and
+                a['height'] == 'tall')
+
+    def test_new_document_with_no_fields(self):
+        a = self.Artist(name='Andrei')
+        a.update()
+        self.assert_updated(a._table, a.fields.as_dict())
+
+    def test_new_document_with_one_field(self):
+        a = self.Artist(name='Andrei')
+        a.update(country='Romania')
+        self.assert_updated(a._table, a.fields.as_dict())
+
+    def test_new_document_with_several_fields(self):
+        a = self.Artist(name='Andrei')
+        a.update(country='Romania', city='Timisoara', male=True)
+        self.assert_updated(a._table, a.fields.as_dict())
+
+    def test_existing_document_with_no_fields(self):
+        a = self.Artist.create(name='Andrei')
+        a.update()
+        self.assert_updated(a._table, a.fields.as_dict())
+
+    def test_existing_document_with_one_field(self):
+        a = self.Artist.create(name='Andrei')
+        a.update(country='Romania')
+        self.assert_updated(a._table, a.fields.as_dict())
+
+    def test_existing_document_with_several_fields(self):
+        a = self.Artist.create(name='Andrei')
+        a.update(country='Romania', city='Timisoara', male=True)
+        self.assert_updated(a._table, a.fields.as_dict())
