@@ -14,8 +14,13 @@ def tableize(what):
 def create_tables():
     from .registry import model_registry
 
-    for model_cls in model_registry.all().values():
-        result = r.table_create(model_cls._table).run()
+    tables = set(model_cls._table for model_cls in model_registry.all().values())
+    created_tables = set(r.table_list().run())
+
+    new_tables = tables - created_tables
+
+    for table in new_tables:
+        result = r.table_create(table).run()
         if result['tables_created'] != 1:
             raise RuntimeError('Could not create table %s for model %s' % (
                                model_cls._table, model_cls.__name__))
