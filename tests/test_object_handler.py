@@ -4,12 +4,12 @@ import unittest
 
 from remodel.connection import get_conn
 from remodel.errors import OperationError
+from remodel.helpers import create_tables, create_indexes
 from remodel.models import Model
 from remodel.object_handler import ObjectHandler, ObjectSet
 from remodel.registry import model_registry
 from remodel.related import (HasOneDescriptor, BelongsToDescriptor,
                              HasManyDescriptor, HasAndBelongsToManyDescriptor)
-from remodel.utils import create_tables, create_indexes
 
 from . import BaseTestCase, DbBaseTestCase
 

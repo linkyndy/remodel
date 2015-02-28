@@ -57,7 +57,7 @@ saved_order.delete()
 
 ```python
 from remodel.models import Model
-from remodel.utils import create_tables, create_indexes
+from remodel.helpers import create_tables, create_indexes
 
 class Party(Model):
     has_many = ('Guest',)

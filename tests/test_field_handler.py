@@ -1,10 +1,10 @@
 import pytest
 import unittest
 
+from remodel.helpers import create_tables, create_indexes
 from remodel.models import Model
 from remodel.related import (HasOneDescriptor, BelongsToDescriptor,
                              HasManyDescriptor, HasAndBelongsToManyDescriptor)
-from remodel.utils import create_tables, create_indexes
 
 from . import BaseTestCase, DbBaseTestCase
 
