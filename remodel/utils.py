@@ -1,41 +1,11 @@
-import rethinkdb as r
-from rethinkdb.errors import RqlRuntimeError
 from inflection import pluralize, underscore
 from threading import Lock
 from warnings import warn
-import remodel.connection
 from .decorators import synchronized
 
 
 def tableize(what):
     return pluralize(underscore(what))
-
-
-def create_tables():
-    from .registry import model_registry
-
-    tables = set(model_cls._table for model_cls in model_registry.all().values())
-    created_tables = set(r.table_list().run())
-
-    new_tables = tables - created_tables
-
-    for table in new_tables:
-        result = r.table_create(table).run()
-        if result['tables_created'] != 1:
-            raise RuntimeError('Could not create table %s for model %s' % (
-                               model_cls._table, model_cls.__name__))
-
-def create_indexes():
-    from .registry import model_registry, index_registry
-
-    for model, index_set in index_registry.all().items():
-        model_cls = model_registry.get(model)
-        for index in index_set:
-            r.table(model_cls._table).index_create(index).run()
-        r.table(model_cls._table).index_wait().run()
-        if set(r.table(model_cls._table).index_list().run()) != index_set:
-            raise RuntimeError('Could not create all indexes for table %s' % 
-                               model_cls._table)
 
 
 class Counter(object):
