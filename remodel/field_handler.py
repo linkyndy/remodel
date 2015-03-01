@@ -34,7 +34,7 @@ class FieldHandlerBase(type):
             dct[field] = BelongsToDescriptor(other, lkey, rkey)
             dct['related'].add(field)
             dct['restricted'].add(lkey)
-            index_registry.register(other, lkey)
+            index_registry.register(model, lkey)
         for rel in dct.pop('has_many'):
             if isinstance(rel, tuple):
                 other, field, lkey, rkey = rel
