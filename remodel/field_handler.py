@@ -1,9 +1,10 @@
+from inflection import tableize
+
 from .errors import AlreadyRegisteredError
 import remodel.models
 from .registry import index_registry
 from .related import (HasOneDescriptor, BelongsToDescriptor, HasManyDescriptor,
                      HasAndBelongsToManyDescriptor)
-from .utils import tableize
 
 
 class FieldHandlerBase(type):

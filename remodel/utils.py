@@ -1,11 +1,6 @@
-from inflection import pluralize, underscore
 from threading import Lock
 from warnings import warn
 from .decorators import synchronized
-
-
-def tableize(what):
-    return pluralize(underscore(what))
 
 
 class Counter(object):

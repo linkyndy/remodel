@@ -1,12 +1,13 @@
 import rethinkdb as r
 from six import add_metaclass
+from inflection import tableize
 
 from .decorators import classaccessonlyproperty, dispatch_to_metaclass
 from .errors import OperationError
 from .field_handler import FieldHandlerBase, FieldHandler
 from .object_handler import ObjectHandler
 from .registry import model_registry
-from .utils import deprecation_warning, tableize
+from .utils import deprecation_warning
 
 
 REL_TYPES = ('has_one', 'has_many', 'belongs_to', 'has_and_belongs_to_many')
