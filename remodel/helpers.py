@@ -14,6 +14,18 @@ def create_tables():
                                    model_cls._table, model_cls.__name__))
 
 
+def drop_tables():
+    from .registry import model_registry
+
+    created_tables = r.table_list().run()
+    for model_cls in model_registry.all().values():
+        if model_cls._table in created_tables:
+            result = r.table_drop(model_cls._table).run()
+            if result['tables_dropped'] != 1:
+                raise RuntimeError('Could not drop table %s for model %s' % (
+                                   model_cls._table, model_cls.__name__))
+
+
 def create_indexes():
     from .registry import model_registry, index_registry
 

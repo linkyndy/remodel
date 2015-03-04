@@ -1,6 +1,6 @@
 import rethinkdb as r
 
-from remodel.helpers import create_tables, create_indexes
+from remodel.helpers import create_tables, drop_tables, create_indexes
 from remodel.models import Model
 
 from . import BaseTestCase, DbBaseTestCase
@@ -24,6 +24,28 @@ class CreateTablesTests(DbBaseTestCase):
         create_tables()
         create_tables()
         self.assert_table_created('artists')
+
+
+class DropTablesTests(DbBaseTestCase):
+    def setUp(self):
+        super(DropTablesTests, self).setUp()
+
+        class Artist(Model):
+            pass
+
+        create_tables()
+
+    def assert_table_dropped(self, table):
+        assert table not in r.table_list().run()
+
+    def test_existing_table(self):
+        drop_tables()
+        self.assert_table_dropped('artists')
+
+    def test_dropped_table(self):
+        drop_tables()
+        drop_tables()
+        self.assert_table_dropped('artists')
 
 
 class CreateIndexesTests(DbBaseTestCase):
