@@ -19,9 +19,10 @@ def create_indexes():
 
     for model, index_set in index_registry.all().items():
         model_cls = model_registry.get(model)
+        created_indexes = r.table(model_cls._table).index_list().run()
         for index in index_set:
-            r.table(model_cls._table).index_create(index).run()
-        r.table(model_cls._table).index_wait().run()
-        if set(r.table(model_cls._table).index_list().run()) != index_set:
-            raise RuntimeError('Could not create all indexes for table %s' %
-                               model_cls._table)
+            if index not in created_indexes:
+                result = r.table(model_cls._table).index_create(index).run()
+                if result['created'] != 1:
+                    raise RuntimeError('Could not create index %s for table %s' % (
+                                       index, model_cls._table))
