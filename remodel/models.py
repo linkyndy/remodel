@@ -2,7 +2,7 @@ import rethinkdb as r
 from six import add_metaclass
 from inflection import tableize
 
-from .decorators import classaccessonlyproperty, dispatch_to_metaclass
+from .decorators import callback, classaccessonlyproperty, dispatch_to_metaclass
 from .errors import OperationError
 from .field_handler import FieldHandlerBase, FieldHandler
 from .object_handler import ObjectHandler
@@ -11,6 +11,7 @@ from .utils import deprecation_warning
 
 
 REL_TYPES = ('has_one', 'has_many', 'belongs_to', 'has_and_belongs_to_many')
+CALLBACKS = ('before_save', 'after_save', 'before_delete', 'after_delete', 'after_init')
 
 
 class ModelBase(type):
@@ -32,6 +33,17 @@ class ModelBase(type):
             dict(rel_attrs, model=name))
         object_handler_cls = dct.setdefault('object_handler', ObjectHandler)
         
+        # Register callbacks
+        dct['_callbacks'] = {callback: [] for callback in CALLBACKS}
+        for callback in CALLBACKS:
+            # Callback-named methods
+            if callback in dct:
+                dct['_callbacks'][callback].append(callback)
+            # Callback-decorated methods
+            dct['_callbacks'][callback].extend([key
+                                                for key, value in dct.items()
+                                                if hasattr(value, callback)])
+
         new_class = super_new(mcs, name, bases, dct)
         model_registry.register(name, new_class)
         setattr(new_class, 'objects', object_handler_cls(new_class))
@@ -51,7 +63,11 @@ class Model(object):
             # Assign fields this way to be sure that validation takes place
             setattr(self.fields, key, value)
 
+        self._run_callbacks('after_init')
+
     def save(self):
+        self._run_callbacks('before_save')
+
         fields_dict = self.fields.as_dict()
         try:
             # Attempt update
@@ -71,6 +87,8 @@ class Model(object):
         # Force overwrite so that related caches are flushed
         self.fields.__dict__ = result['changes'][0]['new_val']
 
+        self._run_callbacks('after_save')
+
     def update(self, **kwargs):
         for key, value in kwargs.items():
             # Assign fields this way to be sure that validation takes place
@@ -79,6 +97,8 @@ class Model(object):
         self.save()
 
     def delete(self):
+        self._run_callbacks('before_delete')
+        
         try:
             id_ = getattr(self.fields, 'id')
             result = r.table(self._table).get(id_).delete().run()
@@ -93,6 +113,8 @@ class Model(object):
         # Remove any reference to the deleted object
         for field in self.fields.related:
             delattr(self.fields, field)
+
+        self._run_callbacks('after_delete')
 
     # TODO: Get rid of this nasty decorator after renaming .get() on ObjectHandler
     @dispatch_to_metaclass
@@ -133,9 +155,20 @@ class Model(object):
     def __str__(self):
         return '<%s object>' % self.__class__.__name__
 
+    def _run_callbacks(self, name):
+        for callback in self._callbacks[name]:
+            getattr(self, callback)()
+
     @classaccessonlyproperty
     def table(self):
         deprecation_warning('Model.table will be deprecated soon. Please use '
                             'Model.objects to build any custom query on a '
                             'Model\'s table (read more about ObjectHandler)')
         return self.objects
+
+
+before_save = callback('before_save')
+after_save = callback('after_save')
+before_delete = callback('before_delete')
+after_delete = callback('after_delete')
+after_init = callback('after_init')

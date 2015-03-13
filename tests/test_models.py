@@ -3,7 +3,7 @@ import rethinkdb as r
 
 from remodel.errors import OperationError
 from remodel.helpers import create_tables, create_indexes
-from remodel.models import Model
+from remodel.models import Model, before_save, after_save, before_delete, after_delete, after_init
 from remodel.object_handler import ObjectHandler
 from remodel.registry import model_registry
 from remodel.related import (HasOneDescriptor, BelongsToDescriptor,
@@ -24,6 +24,7 @@ class ModelTests(BaseTestCase):
         assert hasattr(Artist, 'belongs_to')
         assert hasattr(Artist, '_field_handler_cls')
         assert hasattr(Artist, 'object_handler')
+        assert hasattr(Artist, '_callbacks')
         assert hasattr(Artist, 'objects')
 
     def test_default_object_handler_cls(self):
@@ -42,6 +43,82 @@ class ModelTests(BaseTestCase):
 
         assert Artist.object_handler == CustomObjectHandler
         assert isinstance(Artist.objects, CustomObjectHandler)
+
+    def test_callback_keys(self):
+        """
+        Test whether all callback keys are created for model callback registry
+        """
+
+        class Artist(Model):
+            pass
+
+        assert isinstance(Artist._callbacks, dict)
+        assert 'before_save' in Artist._callbacks
+        assert 'after_save' in Artist._callbacks
+        assert 'before_delete' in Artist._callbacks
+        assert 'after_delete' in Artist._callbacks
+        assert 'after_init' in Artist._callbacks
+
+    def test_callback_named_methods_registered(self):
+        """
+        Test whether all callback named methods are registered to the model
+        callback registry
+        """
+
+        class Artist(Model):
+            def before_save(self):
+                pass
+
+            def after_save(self):
+                pass
+
+            def before_delete(self):
+                pass
+
+            def after_delete(self):
+                pass
+
+            def after_init(self):
+                pass
+
+        assert 'before_save' in Artist._callbacks['before_save']
+        assert 'after_save' in Artist._callbacks['after_save']
+        assert 'before_delete' in Artist._callbacks['before_delete']
+        assert 'after_delete' in Artist._callbacks['after_delete']
+        assert 'after_init' in Artist._callbacks['after_init']
+
+    def test_callback_decorated_methods_registered(self):
+        """
+        Test whether all callback decorated methods are registered to the model
+        callback registry
+        """
+
+        class Artist(Model):
+            @before_save
+            def bef_save(self):
+                pass
+
+            @after_save
+            def aft_save(self):
+                pass
+
+            @before_delete
+            def bef_delete(self):
+                pass
+
+            @after_delete
+            def aft_delete(self):
+                pass
+
+            @after_init
+            def aft_init(self):
+                pass
+
+        assert 'bef_save' in Artist._callbacks['before_save']
+        assert 'aft_save' in Artist._callbacks['after_save']
+        assert 'bef_delete' in Artist._callbacks['before_delete']
+        assert 'aft_delete' in Artist._callbacks['after_delete']
+        assert 'aft_init' in Artist._callbacks['after_init']
 
 
 class FieldTests(BaseTestCase):
@@ -366,3 +443,77 @@ class UpdateTests(DbBaseTestCase):
         a = self.Artist.create(name='Andrei')
         a.update(country='Romania', city='Timisoara', male=True)
         self.assert_updated(a._table, a.fields.as_dict())
+
+
+class CallbackTests(DbBaseTestCase):
+    """
+    Tests whether callbacks are run and also that they are run at the desired
+    moment
+    """
+
+    # TODO: Make these tests more relevant by using mocks
+
+    def assert_saved(self, table, fields):
+        assert len(list(r.table(table).filter(fields).run())) == 1
+
+    def assert_not_saved(self, table, fields):
+        assert len(list(r.table(table).filter(fields).run())) == 0
+
+    def assert_deleted(self, table, fields):
+        assert len(list(r.table(table).filter(fields).run())) == 0
+
+    def test_before_save(self):
+        class Artist(Model):
+            def before_save(self):
+                self['verified'] = True
+
+        create_tables()
+
+        a = Artist()
+        a.save()
+        assert a['verified'] is True
+        self.assert_saved(a._table, a.fields.as_dict())
+
+    def test_after_save(self):
+        class Artist(Model):
+            def after_save(self):
+                self['confirmed'] = False
+
+        create_tables()
+
+        a = Artist()
+        a.save()
+        assert a['confirmed'] is False
+        self.assert_not_saved(a._table, a.fields.as_dict())
+
+    def test_before_delete(self):
+        class Artist(Model):
+            def before_delete(self):
+                self['deleted'] = True
+
+        create_tables()
+
+        a = Artist.create()
+        a.delete()
+        assert a['deleted'] is True
+        self.assert_deleted(a._table, a.fields.as_dict())
+
+    def test_after_delete(self):
+        class Artist(Model):
+            def after_delete(self):
+                self['deleted'] = True
+
+        create_tables()
+
+        a = Artist.create()
+        a.delete()
+        assert a['deleted'] is True
+        self.assert_deleted(a._table, a.fields.as_dict())
+
+    def test_after_init(self):
+        class Artist(Model):
+            def after_init(self):
+                self['new'] = True
+
+        a = Artist()
+        assert a['new'] is True

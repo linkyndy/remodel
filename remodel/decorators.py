@@ -1,3 +1,10 @@
+def callback(name):
+    def _decorator(func):
+        setattr(func, name, True)
+        return func
+    return _decorator
+
+
 class cached_property(object):
     def __init__(self, func):
         self.func = func
