@@ -32,7 +32,7 @@ class ModelBase(type):
             (FieldHandler,),
             dict(rel_attrs, model=name))
         object_handler_cls = dct.setdefault('object_handler', ObjectHandler)
-        
+
         # Register callbacks
         dct['_callbacks'] = {callback: [] for callback in CALLBACKS}
         for callback in CALLBACKS:
@@ -53,6 +53,7 @@ class ModelBase(type):
     # ReQL queries directly on the Model (e.g.: User.order_by('name').run())
     def __getattr__(self, name):
         return getattr(self.objects, name)
+
 
 @add_metaclass(ModelBase)
 class Model(object):

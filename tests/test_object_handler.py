@@ -263,7 +263,7 @@ class LenTests(DbBaseTestCase):
         a = self.Artist.create()
         self.Artist.create()
         a.delete()
-        assert len(self.Artist.all()) == 1  
+        assert len(self.Artist.all()) == 1
 
 
 class GetItemTests(DbBaseTestCase):
@@ -318,4 +318,3 @@ class CustomQueryTests(DbBaseTestCase):
             results = list(self.Artist.order_by('name').run(conn))
         assert results[0]['name'] == 'Andrei'
         assert results[1]['name'] == 'John'
-

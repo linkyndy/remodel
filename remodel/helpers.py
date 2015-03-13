@@ -1,5 +1,4 @@
 import rethinkdb as r
-from rethinkdb.errors import RqlRuntimeError
 
 
 def create_tables():

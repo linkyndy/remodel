@@ -48,7 +48,3 @@ class DbBaseTestCase(BaseTestCase):
         # Drop test database
         with get_conn() as conn:
             r.db_drop('testing').run(conn)
-
-
-
-
