@@ -27,6 +27,7 @@ That's really everything you need to do to set up a model!
 - convention over configuration;
 - lazy-loading;
 - caching;
+- thoroughly tested;
 
 ## Installation
 
@@ -57,7 +58,7 @@ saved_order.delete()
 
 ```python
 from remodel.models import Model
-from remodel.utils import create_tables, create_indexes
+from remodel.helpers import create_tables, create_indexes
 
 class Party(Model):
     has_many = ('Guest',)
@@ -133,6 +134,30 @@ quattro_formaggi = Recipe.create(name='Pizza Quattro Formaggi')
 andrei = Chef.create(name='Andrei')
 andreis_special_quattro_formaggi = SpecificSpice.create(chef=andrei, recipe=quattro_formaggi, oregano=True, love=True)
 print andreis_special_quatro_formaggi['love'] # prints True
+```
+
+### Callbacks
+
+```python
+from remodel.models import Model
+
+class Shirt(Model):
+    def after_init(self):
+        self.wash()
+
+    def wash(self):
+        print 'Gotta wash a shirt after creating it...'
+```
+
+or
+
+```python
+from remodel.models import Model, after_save
+
+class Prize(Model):
+    @after_save
+    def brag(self):
+        print 'I just won a prize!'
 ```
 
 ### Custom model queries
@@ -243,7 +268,7 @@ The main reason for Remodel's existence was the need of a light-weight ODM for R
 
 ## Status
 
-Remodel is under active development and it is not _yet_ production-ready. 
+Remodel is under active development and it is not _yet_ production-ready.
 
 ## How to contribute?
 

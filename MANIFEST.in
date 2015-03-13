@@ -1,4 +1,4 @@
-include AUTHORS
-include CONTRIBUTING.rst
+include AUTHORS.md
+include CONTRIBUTING.md
 include LICENSE
 include README.md

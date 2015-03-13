@@ -1,10 +1,11 @@
 import pytest
 import unittest
 
+from remodel.helpers import create_tables, create_indexes
 from remodel.models import Model
+from remodel.registry import index_registry
 from remodel.related import (HasOneDescriptor, BelongsToDescriptor,
                              HasManyDescriptor, HasAndBelongsToManyDescriptor)
-from remodel.utils import create_tables, create_indexes
 
 from . import BaseTestCase, DbBaseTestCase
 
@@ -132,6 +133,54 @@ class AttributesTests(BaseTestCase):
         assert fhcls.restricted == set(['person_id'])
         assert fhcls.related == set(['bio', 'person', 'songs', 'tastes'])
 
+
+class IndexesTests(BaseTestCase):
+    """
+    Tests whether indexes are set on the correct tables and keys
+    """
+
+    def test_has_one(self):
+        class Bear(Model):
+            has_one = ('FavoriteCub',)
+
+        assert index_registry.get_for_model('Bear') == set()
+        assert index_registry.get_for_model('FavoriteCub') == set(['bear_id'])
+
+    def test_belongs_one(self):
+        class Bear(Model):
+            belongs_to = ('Family',)
+
+        assert index_registry.get_for_model('Bear') == set(['family_id'])
+        assert index_registry.get_for_model('Family') == set()
+
+    def test_has_many(self):
+        class Bear(Model):
+            has_many = ('Cub',)
+
+        assert index_registry.get_for_model('Bear') == set()
+        assert index_registry.get_for_model('Cub') == set(['bear_id'])
+
+    def test_has_and_belongs_to_many(self):
+        class Bear(Model):
+            has_and_belongs_to_many = ('Continent',)
+
+        assert index_registry.get_for_model('Bear') == set()
+        assert index_registry.get_for_model('Continent') == set()
+        assert index_registry.get_for_model('_BearContinent') == set(['bear_id', 'continent_id'])
+
+    def test_all_relations(self):
+        class Bear(Model):
+            has_one = ('FavoriteCub',)
+            belongs_to = ('Family',)
+            has_many = ('Cub',)
+            has_and_belongs_to_many = ('Continent',)
+
+        assert index_registry.get_for_model('Bear') == set(['family_id'])
+        assert index_registry.get_for_model('FavoriteCub') == set(['bear_id'])
+        assert index_registry.get_for_model('Family') == set()
+        assert index_registry.get_for_model('Cub') == set(['bear_id'])
+        assert index_registry.get_for_model('Continent') == set()
+        assert index_registry.get_for_model('_BearContinent') == set(['bear_id', 'continent_id'])
 
 class AttributeAccessTests(BaseTestCase):
     """

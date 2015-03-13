@@ -4,12 +4,12 @@ import unittest
 
 from remodel.connection import get_conn
 from remodel.errors import OperationError
+from remodel.helpers import create_tables, create_indexes
 from remodel.models import Model
 from remodel.object_handler import ObjectHandler, ObjectSet
 from remodel.registry import model_registry
 from remodel.related import (HasOneDescriptor, BelongsToDescriptor,
                              HasManyDescriptor, HasAndBelongsToManyDescriptor)
-from remodel.utils import create_tables, create_indexes
 
 from . import BaseTestCase, DbBaseTestCase
 
@@ -263,7 +263,7 @@ class LenTests(DbBaseTestCase):
         a = self.Artist.create()
         self.Artist.create()
         a.delete()
-        assert len(self.Artist.all()) == 1  
+        assert len(self.Artist.all()) == 1
 
 
 class GetItemTests(DbBaseTestCase):
@@ -318,4 +318,3 @@ class CustomQueryTests(DbBaseTestCase):
             results = list(self.Artist.order_by('name').run(conn))
         assert results[0]['name'] == 'Andrei'
         assert results[1]['name'] == 'John'
-

@@ -4,9 +4,9 @@ from rethinkdb.errors import RqlDriverError
 import unittest
 
 from remodel.connection import pool, get_conn
+from remodel.helpers import create_tables
 from remodel.models import Model
 from remodel.registry import model_registry, index_registry
-from remodel.utils import create_tables
 
 
 def get_env_settings():
@@ -48,7 +48,3 @@ class DbBaseTestCase(BaseTestCase):
         # Drop test database
         with get_conn() as conn:
             r.db_drop('testing').run(conn)
-
-
-
-

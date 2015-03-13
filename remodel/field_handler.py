@@ -1,9 +1,10 @@
+from inflection import tableize
+
 from .errors import AlreadyRegisteredError
 import remodel.models
 from .registry import index_registry
 from .related import (HasOneDescriptor, BelongsToDescriptor, HasManyDescriptor,
                      HasAndBelongsToManyDescriptor)
-from .utils import tableize
 
 
 class FieldHandlerBase(type):
@@ -34,7 +35,7 @@ class FieldHandlerBase(type):
             dct[field] = BelongsToDescriptor(other, lkey, rkey)
             dct['related'].add(field)
             dct['restricted'].add(lkey)
-            index_registry.register(other, lkey)
+            index_registry.register(model, lkey)
         for rel in dct.pop('has_many'):
             if isinstance(rel, tuple):
                 other, field, lkey, rkey = rel
