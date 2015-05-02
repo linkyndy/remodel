@@ -85,8 +85,13 @@ class Model(object):
         if result['errors'] > 0:
             raise OperationError(result['first_error'])
 
-        # Force overwrite so that related caches are flushed
-        self.fields.__dict__ = result['changes'][0]['new_val']
+        # RethinkDB 2.0 doesn't add the 'changes' key in the result if the
+        # document hasn't been modified
+        # TODO: Follow on the discussion at linkyndy/remodel#23 and change this
+        #       accordingly
+        if 'changes' in result:
+            # Force overwrite so that related caches are flushed
+            self.fields.__dict__ = result['changes'][0]['new_val']
 
         self._run_callbacks('after_save')
 
@@ -99,7 +104,7 @@ class Model(object):
 
     def delete(self):
         self._run_callbacks('before_delete')
-        
+
         try:
             id_ = getattr(self.fields, 'id')
             result = r.table(self._table).get(id_).delete().run()
