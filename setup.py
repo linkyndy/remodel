@@ -11,7 +11,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='remodel',
-    version='0.4.0',
+    version='0.4.1',
     url='http://github.com/linkyndy/remodel',
     license='MIT',
     author='Andrei Horak',
