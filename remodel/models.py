@@ -75,7 +75,7 @@ class Model(object):
             id_ = fields_dict['id']
             result = (r.table(self._table).get(id_).replace(r.row
                         .without(r.row.keys().difference(list(fields_dict.keys())))
-                        .merge(fields_dict), return_changes=True).run())
+                        .merge(fields_dict), return_changes='always').run())
 
         except KeyError:
             # Resort to insert
@@ -85,13 +85,8 @@ class Model(object):
         if result['errors'] > 0:
             raise OperationError(result['first_error'])
 
-        # RethinkDB 2.0 doesn't add the 'changes' key in the result if the
-        # document hasn't been modified
-        # TODO: Follow on the discussion at linkyndy/remodel#23 and change this
-        #       accordingly
-        if 'changes' in result:
-            # Force overwrite so that related caches are flushed
-            self.fields.__dict__ = result['changes'][0]['new_val']
+        # Force overwrite so that related caches are flushed
+        self.fields.__dict__ = result['changes'][0]['new_val']
 
         self._run_callbacks('after_save')
 
