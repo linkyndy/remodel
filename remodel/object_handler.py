@@ -58,7 +58,11 @@ class ObjectHandler(object):
     def _wrap(self, doc):
         obj = self.model_cls()
         # Assign fields this way to skip validation
-        obj.fields.__dict__ = doc
+        # obj.fields.__dict__ = doc
+        # Issue: #24 Above line is replaced with following.
+        # Not to call field's __setattr__ function which do validations, we just update dict
+        # As validation checks are not issued, this speeds up fetching rows from DB
+        obj.fields.__dict__.update(doc)
         return obj
 
 
