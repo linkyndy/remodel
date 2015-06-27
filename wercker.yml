@@ -1,7 +1,7 @@
 ---
 box: wercker/python
 services:
-    - mies/rethinkdb
+    - linkyndy/rethinkdb
 build:
     steps:
         - virtualenv:
