@@ -75,7 +75,7 @@ class Model(object):
             id_ = fields_dict['id']
             result = (r.table(self._table).get(id_).replace(r.row
                         .without(r.row.keys().difference(list(fields_dict.keys())))
-                        .merge(fields_dict), return_changes=True).run())
+                        .merge(fields_dict), return_changes='always').run())
 
         except KeyError:
             # Resort to insert
@@ -99,7 +99,7 @@ class Model(object):
 
     def delete(self):
         self._run_callbacks('before_delete')
-        
+
         try:
             id_ = getattr(self.fields, 'id')
             result = r.table(self._table).get(id_).delete().run()
