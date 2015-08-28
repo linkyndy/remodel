@@ -1,7 +1,6 @@
 from collections import defaultdict
 
 from .errors import AlreadyRegisteredError
-import remodel.models
 
 
 class ModelRegistry(object):
@@ -12,6 +11,8 @@ class ModelRegistry(object):
         return len(self._data)
 
     def register(self, name, cls):
+        import remodel.models
+
         if name in self._data:
             raise AlreadyRegisteredError('Model "%s" has been already registered' % name)
         if not issubclass(cls, remodel.models.Model):
