@@ -37,3 +37,4 @@ def create_indexes():
                 if result['created'] != 1:
                     raise RuntimeError('Could not create index %s for table %s' % (
                                        index, model_cls._table))
+        r.table(model_cls._table).index_wait().run()
