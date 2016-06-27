@@ -30,7 +30,7 @@ class ModelTests(BaseTestCase):
 
     def test_custom_table_name(self):
         class Artist(Model):
-            _table = 'artist_tbl'
+            table = 'artist_tbl'
 
         assert Artist._table == 'artist_tbl'
 
