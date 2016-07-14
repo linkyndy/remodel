@@ -27,6 +27,13 @@ class ModelTests(BaseTestCase):
         assert hasattr(Artist, '_callbacks')
         assert hasattr(Artist, 'objects')
 
+
+    def test_custom_table_name(self):
+        class Artist(Model):
+            table = 'artist_tbl'
+
+        assert Artist._table == 'artist_tbl'
+
     def test_default_object_handler_cls(self):
         class Artist(Model):
             pass

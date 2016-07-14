@@ -24,7 +24,7 @@ class ModelBase(type):
             return super_new(mcs, name, bases, dct)
 
         # Set metadata
-        dct['_table'] = tableize(name)
+        dct['_table'] = tableize(name) if 'table' not in dct else dct['table']
 
         rel_attrs = {rel: dct.setdefault(rel, ()) for rel in REL_TYPES}
         dct['_field_handler_cls'] = FieldHandlerBase(
