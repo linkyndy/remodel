@@ -160,6 +160,15 @@ class Prize(Model):
         print 'I just won a prize!'
 ```
 
+### Custom table name
+
+```python
+class Child(Model):
+    table = 'kids'
+
+print Child.table # prints 'kids'
+```
+
 ### Custom model queries
 
 ```python
