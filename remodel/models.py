@@ -2,7 +2,7 @@ import rethinkdb as r
 from six import add_metaclass
 from inflection import tableize
 
-from .decorators import callback, classaccessonlyproperty, dispatch_to_metaclass
+from .decorators import callback, dispatch_to_metaclass
 from .errors import OperationError
 from .field_handler import FieldHandlerBase, FieldHandler
 from .object_handler import ObjectHandler
@@ -159,13 +159,6 @@ class Model(object):
     def _run_callbacks(self, name):
         for callback in self._callbacks[name]:
             getattr(self, callback)()
-
-    @classaccessonlyproperty
-    def table(self):
-        deprecation_warning('Model.table will be deprecated soon. Please use '
-                            'Model.objects to build any custom query on a '
-                            'Model\'s table (read more about ObjectHandler)')
-        return self.objects
 
 
 before_save = callback('before_save')
