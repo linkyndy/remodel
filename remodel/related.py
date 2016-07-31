@@ -229,7 +229,7 @@ def create_related_m2m_object_handler_cls(model_cls, lkey, rkey, join_model_cls,
             for obj_key in new_keys:
                 params = {mlkey: self._get_parent_lkey(),
                           mrkey: obj_key}
-                join_model_cls.table.insert(params).run()
+                join_model_cls.insert(params).run()
 
         def remove(self, *objs):
             old_keys = set()
@@ -247,14 +247,14 @@ def create_related_m2m_object_handler_cls(model_cls, lkey, rkey, join_model_cls,
             old_keys &= existing_keys
 
             if old_keys:
-                (join_model_cls.table.get_all(r.args(list(old_keys)), index=mrkey)
-                                     .delete()
-                                     .run())
+                (join_model_cls.get_all(r.args(list(old_keys)), index=mrkey)
+                               .delete()
+                               .run())
 
         def clear(self):
-            (join_model_cls.table
-             .get_all(self._get_parent_lkey(), index=mlkey)
-             .delete().run())
+            (join_model_cls.get_all(self._get_parent_lkey(), index=mlkey)
+                           .delete()
+                           .run())
 
         def _get_parent_lkey(self):
             parent_lkey = getattr(self.parent, lkey, None)
