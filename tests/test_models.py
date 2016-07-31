@@ -32,14 +32,14 @@ class ModelTests(BaseTestCase):
             pass
 
         assert Artist._table == 'artists'
-        assert Artist.table == 'artists'
+        assert Artist.table_name == 'artists'
 
     def test_custom_table_name(self):
         class Artist(Model):
-            table = 'artist_tbl'
+            table_name = 'artist_tbl'
 
         assert Artist._table == 'artist_tbl'
-        assert Artist.table == 'artist_tbl'
+        assert Artist.table_name == 'artist_tbl'
 
     def test_default_object_handler_cls(self):
         class Artist(Model):

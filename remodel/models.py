@@ -2,7 +2,7 @@ import rethinkdb as r
 from six import add_metaclass
 from inflection import tableize
 
-from .decorators import callback, classaccessonlyproperty, dispatch_to_metaclass
+from .decorators import callback, dispatch_to_metaclass
 from .errors import OperationError
 from .field_handler import FieldHandlerBase, FieldHandler
 from .object_handler import ObjectHandler
@@ -24,7 +24,7 @@ class ModelBase(type):
             return super_new(mcs, name, bases, dct)
 
         # Set metadata
-        dct['_table'] = dct.get('table', tableize(name))
+        dct['table_name'] = dct['_table'] = dct.get('table_name', tableize(name))
 
         rel_attrs = {rel: dct.setdefault(rel, ()) for rel in REL_TYPES}
         dct['_field_handler_cls'] = FieldHandlerBase(
@@ -116,10 +116,6 @@ class Model(object):
             delattr(self.fields, field)
 
         self._run_callbacks('after_delete')
-
-    @classaccessonlyproperty
-    def table(self):
-        return self._table
 
     # TODO: Get rid of this nasty decorator after renaming .get() on ObjectHandler
     @dispatch_to_metaclass

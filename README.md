@@ -164,9 +164,9 @@ class Prize(Model):
 
 ```python
 class Child(Model):
-    table = 'kids'
+    table_name = 'kids'
 
-print Child.table # prints 'kids'
+print Child.table_name # prints 'kids'
 ```
 
 ### Custom model queries
