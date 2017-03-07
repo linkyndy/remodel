@@ -10,16 +10,26 @@ from .utils import Counter
 
 
 class Connection(object):
-    def __init__(self, db='test', host='localhost', port=28015, auth_key=''):
+    def __init__(self, db='test', host='localhost', port=28015, auth_key='',
+                 user='admin', password=''):
         self.db = db
         self.host = host
         self.port = port
         self.auth_key = auth_key
+        self.user = user
+        self.password = password
         self._conn = None
 
     def connect(self):
-        self._conn = r.connect(host=self.host, port=self.port,
-                               auth_key=self.auth_key, db=self.db)
+        if rethinkdb.__version__ >= '2.3.0':
+            password = self.password if self.password != '' else self.auth_key
+            self._conn = rethinkdb.connect(host=self.host, port=self.port,
+                                           user=self.user, password=password,
+                                           db=self.db)
+        else:
+            auth_key = self.auth_key if self.auth_key != '' else self.password
+            self._conn = rethinkdb.connect(host=self.host, port=self.port,
+                                           auth_key=auth_key, db=self.db)
 
     def close(self):
         if self._conn:
