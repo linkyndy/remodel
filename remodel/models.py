@@ -109,11 +109,11 @@ class Model(object):
         if result['errors'] > 0:
             raise OperationError(result['first_error'])
 
-        delattr(self.fields, 'id')
         # Remove any reference to the deleted object
         for field in self.fields.related:
             delattr(self.fields, field)
 
+        delattr(self.fields, 'id')
         self._run_callbacks('after_delete')
 
     # TODO: Get rid of this nasty decorator after renaming .get() on ObjectHandler
