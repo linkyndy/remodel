@@ -27,6 +27,11 @@ setup(
         'inflection',
         'six'
     ],
+    extras_require={
+        'dev': [
+            'pytest'
+        ]
+    }
     classifiers=[
         'Environment :: Web Environment',
         'Intended Audience :: Developers',

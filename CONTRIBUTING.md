@@ -14,7 +14,7 @@ You can contribute in many ways:
 
 ## Getting Started!
 
-**Fork** this repo, `pip install -e .` the project, do your magic, `tox` and submit a pull request on the **develop** branch!
+**Fork** this repo, `pip install -e .[dev]` the project, do your magic, `pytest` and submit a pull request on the **master** branch!
 
 > Issues, features, bugs and questions are tracked at https://github.com/linkyndy/remodel/issues
 
