@@ -1,22 +1,21 @@
+dist: xenial
 language: python
 python:
-  - "2.7"
-  - "3.4"
-  - "3.5"
-before_install:
-  - source /etc/lsb-release && echo "deb http://download.rethinkdb.com/apt $DISTRIB_CODENAME main" | sudo tee /etc/apt/sources.list.d/rethinkdb.list
-  - wget -qO- http://download.rethinkdb.com/apt/pubkey.gpg | sudo apt-key add -
-  - sudo apt-get update -qq
-  - sudo apt-get install rethinkdb -y
-  - rethinkdb --version
+  - 2.7
+  - 3.4
+  - 3.5
+  - 3.6
+  - 3.7
+addons:
+  - rethinkdb: 2.3
 install:
-  - pip install .
-before_script:
-  - rethinkdb --daemon
-script: py.test tests/
+  - pip install .[dev]
+script: pytest
 deploy:
   provider: pypi
-  user: $PYPI_USER
-  password: $PYPI_PASSWORD
+  user: linkyndy
+  password:
+    secure: "K7lrgkEOm9bDf7EEBQqGxDjnjAVBpQTOec9PmFgB/C8YWUJhhI8mhs/b6JCh32p9AQACbUn/2BBUVqWnTL0exBPQNsVzkpUeaj9OZJD8kFjx0uv5YwDzjEufh1dMJNUYzx2J3KGcDvn6aKSP0RXxLCFF97a6WYc9YN8tutlSLbQ="
   on:
     tags: true
+  skip_existing: true
