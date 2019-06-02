@@ -9,8 +9,8 @@ python:
 addons:
   - rethinkdb: 2.3
 install:
-  - pip install .
-script: py.test tests/
+  - pip install .[dev]
+script: pytest
 deploy:
   provider: pypi
   user: $PYPI_USER
