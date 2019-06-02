@@ -17,7 +17,7 @@ class ModelTests(BaseTestCase):
         class Artist(Model):
             pass
 
-        assert hasattr(Artist, '_table')
+        assert hasattr(Artist, 'table_name')
         assert hasattr(Artist, 'has_one')
         assert hasattr(Artist, 'has_many')
         assert hasattr(Artist, 'has_and_belongs_to_many')
@@ -31,14 +31,12 @@ class ModelTests(BaseTestCase):
         class Artist(Model):
             pass
 
-        assert Artist._table == 'artists'
         assert Artist.table_name == 'artists'
 
     def test_custom_table_name(self):
         class Artist(Model):
             table_name = 'artist_tbl'
 
-        assert Artist._table == 'artist_tbl'
         assert Artist.table_name == 'artist_tbl'
 
     def test_default_object_handler_cls(self):
@@ -268,27 +266,27 @@ class SaveTests(DbBaseTestCase):
     def test_insert(self):
         a = self.Artist(name='Andrei')
         a.save()
-        self.assert_saved(a._table, a.fields.as_dict())
+        self.assert_saved(a.table_name, a.fields.as_dict())
 
     def test_update(self):
         a = self.Artist(name='Andrei')
         a.save()
         a.save()
-        self.assert_saved(a._table, a.fields.as_dict())
+        self.assert_saved(a.table_name, a.fields.as_dict())
 
     def test_update_with_added_field(self):
         a = self.Artist(name='Andrei')
         a.save()
         a['country'] = 'Romania'
         a.save()
-        self.assert_saved(a._table, a.fields.as_dict())
+        self.assert_saved(a.table_name, a.fields.as_dict())
 
     def test_update_with_removed_field(self):
         a = self.Artist(name='Andrei')
         a.save()
         del a['name']
         a.save()
-        self.assert_saved(a._table, a.fields.as_dict())
+        self.assert_saved(a.table_name, a.fields.as_dict())
 
     def test_belongs_to(self):
         p = self.Person()
@@ -296,7 +294,7 @@ class SaveTests(DbBaseTestCase):
         a = self.Artist()
         a['person'] = p
         a.save()
-        self.assert_saved(a._table, a.fields.as_dict())
+        self.assert_saved(a.table_name, a.fields.as_dict())
 
     def test_updated_belongs_to(self):
         p1 = self.Person()
@@ -308,7 +306,7 @@ class SaveTests(DbBaseTestCase):
         p2.save()
         a['person'] = p2
         a.save()
-        self.assert_saved(a._table, a.fields.as_dict())
+        self.assert_saved(a.table_name, a.fields.as_dict())
 
     def test_removed_belongs_to(self):
         p = self.Person()
@@ -318,7 +316,7 @@ class SaveTests(DbBaseTestCase):
         a.save()
         del a['person']
         a.save()
-        self.assert_saved(a._table, a.fields.as_dict())
+        self.assert_saved(a.table_name, a.fields.as_dict())
 
     def test_has_one(self):
         a = self.Artist()
@@ -326,7 +324,7 @@ class SaveTests(DbBaseTestCase):
         b = self.Bio()
         a['bio'] = b
         b.save()
-        self.assert_saved(b._table, b.fields.as_dict())
+        self.assert_saved(b.table_name, b.fields.as_dict())
 
     def test_updated_has_one(self):
         a = self.Artist()
@@ -337,7 +335,7 @@ class SaveTests(DbBaseTestCase):
         b2 = self.Bio()
         a['bio'] = b2
         b1.save()
-        self.assert_saved(b1._table, b1.fields.as_dict())
+        self.assert_saved(b1.table_name, b1.fields.as_dict())
 
     def test_removed_has_one(self):
         a = self.Artist()
@@ -347,7 +345,7 @@ class SaveTests(DbBaseTestCase):
         b.save()
         del a['bio']
         b.save()
-        self.assert_saved(b._table, b.fields.as_dict())
+        self.assert_saved(b.table_name, b.fields.as_dict())
 
 
 class DeleteTests(DbBaseTestCase):
@@ -431,32 +429,32 @@ class UpdateTests(DbBaseTestCase):
     def test_new_document_with_no_fields(self):
         a = self.Artist(name='Andrei')
         a.update()
-        self.assert_updated(a._table, a.fields.as_dict())
+        self.assert_updated(a.table_name, a.fields.as_dict())
 
     def test_new_document_with_one_field(self):
         a = self.Artist(name='Andrei')
         a.update(country='Romania')
-        self.assert_updated(a._table, a.fields.as_dict())
+        self.assert_updated(a.table_name, a.fields.as_dict())
 
     def test_new_document_with_several_fields(self):
         a = self.Artist(name='Andrei')
         a.update(country='Romania', city='Timisoara', male=True)
-        self.assert_updated(a._table, a.fields.as_dict())
+        self.assert_updated(a.table_name, a.fields.as_dict())
 
     def test_existing_document_with_no_fields(self):
         a = self.Artist.create(name='Andrei')
         a.update()
-        self.assert_updated(a._table, a.fields.as_dict())
+        self.assert_updated(a.table_name, a.fields.as_dict())
 
     def test_existing_document_with_one_field(self):
         a = self.Artist.create(name='Andrei')
         a.update(country='Romania')
-        self.assert_updated(a._table, a.fields.as_dict())
+        self.assert_updated(a.table_name, a.fields.as_dict())
 
     def test_existing_document_with_several_fields(self):
         a = self.Artist.create(name='Andrei')
         a.update(country='Romania', city='Timisoara', male=True)
-        self.assert_updated(a._table, a.fields.as_dict())
+        self.assert_updated(a.table_name, a.fields.as_dict())
 
 
 class CallbackTests(DbBaseTestCase):
@@ -486,7 +484,7 @@ class CallbackTests(DbBaseTestCase):
         a = Artist()
         a.save()
         assert a['verified'] is True
-        self.assert_saved(a._table, a.fields.as_dict())
+        self.assert_saved(a.table_name, a.fields.as_dict())
 
     def test_after_save(self):
         class Artist(Model):
@@ -498,7 +496,7 @@ class CallbackTests(DbBaseTestCase):
         a = Artist()
         a.save()
         assert a['confirmed'] is False
-        self.assert_not_saved(a._table, a.fields.as_dict())
+        self.assert_not_saved(a.table_name, a.fields.as_dict())
 
     def test_before_delete(self):
         class Artist(Model):
@@ -510,7 +508,7 @@ class CallbackTests(DbBaseTestCase):
         a = Artist.create()
         a.delete()
         assert a['deleted'] is True
-        self.assert_deleted(a._table, a.fields.as_dict())
+        self.assert_deleted(a.table_name, a.fields.as_dict())
 
     def test_after_delete(self):
         class Artist(Model):
@@ -522,7 +520,7 @@ class CallbackTests(DbBaseTestCase):
         a = Artist.create()
         a.delete()
         assert a['deleted'] is True
-        self.assert_deleted(a._table, a.fields.as_dict())
+        self.assert_deleted(a.table_name, a.fields.as_dict())
 
     def test_after_init(self):
         class Artist(Model):

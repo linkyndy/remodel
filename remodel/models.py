@@ -24,7 +24,7 @@ class ModelBase(type):
             return super_new(mcs, name, bases, dct)
 
         # Set metadata
-        dct['table_name'] = dct['_table'] = dct.get('table_name', tableize(name))
+        dct['table_name'] = dct.get('table_name', tableize(name))
 
         rel_attrs = {rel: dct.setdefault(rel, ()) for rel in REL_TYPES}
         dct['_field_handler_cls'] = FieldHandlerBase(
@@ -73,13 +73,13 @@ class Model(object):
         try:
             # Attempt update
             id_ = fields_dict['id']
-            result = (r.table(self._table).get(id_).replace(r.row
+            result = (r.table(self.table_name).get(id_).replace(r.row
                         .without(r.row.keys().difference(list(fields_dict.keys())))
                         .merge(fields_dict), return_changes='always').run())
 
         except KeyError:
             # Resort to insert
-            result = (r.table(self._table).insert(fields_dict, return_changes=True)
+            result = (r.table(self.table_name).insert(fields_dict, return_changes=True)
                       .run())
 
         if result['errors'] > 0:
@@ -102,7 +102,7 @@ class Model(object):
 
         try:
             id_ = getattr(self.fields, 'id')
-            result = r.table(self._table).get(id_).delete().run()
+            result = r.table(self.table_name).get(id_).delete().run()
         except AttributeError:
             raise OperationError('Cannot delete %r (object not saved or '
                                  'already deleted)' % self)
