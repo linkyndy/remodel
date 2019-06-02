@@ -4,7 +4,7 @@ from rethinkdb import r
 class ObjectHandler(object):
     def __init__(self, model_cls, query=None):
         self.model_cls = model_cls
-        self.query = query or r.table(model_cls._table)
+        self.query = query or r.table(model_cls.table_name)
 
     def __getattr__(self, name):
         return getattr(self.query, name)

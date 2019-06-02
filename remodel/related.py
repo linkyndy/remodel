@@ -194,9 +194,9 @@ def create_related_m2m_object_handler_cls(model_cls, lkey, rkey, join_model_cls,
             # Parent field handler instance
             self.parent = parent
             # Returns all docs from model_cls which are referenced in join_model_cls
-            self.query = (r.table(join_model_cls._table)
+            self.query = (r.table(join_model_cls.table_name)
                           .get_all(self._get_parent_lkey(), index=mlkey)
-                          .eq_join(mrkey, r.table(model_cls._table), index=rkey)
+                          .eq_join(mrkey, r.table(model_cls.table_name), index=rkey)
                           .map(lambda res: res['right']))
 
         def create(self, **kwargs):
