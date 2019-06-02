@@ -1,4 +1,4 @@
-import rethinkdb as r
+from rethinkdb import r
 
 
 def create_tables():

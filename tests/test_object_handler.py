@@ -1,5 +1,5 @@
 import pytest
-import rethinkdb as r
+from rethinkdb import r
 import unittest
 
 from remodel.connection import get_conn

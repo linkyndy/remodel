@@ -1,5 +1,5 @@
 import pytest
-import rethinkdb as r
+from rethinkdb import r
 
 from remodel.errors import OperationError
 from remodel.helpers import create_tables, create_indexes

@@ -1,9 +1,9 @@
-import rethinkdb as r
+from rethinkdb import ast
 
 import remodel.connection
 
 
-run = r.ast.RqlQuery.run
+run = ast.RqlQuery.run
 
 def remodel_run(self, c=None, **global_optargs):
     """
@@ -17,4 +17,4 @@ def remodel_run(self, c=None, **global_optargs):
     else:
         return run(self, c, **global_optargs)
 
-r.ast.RqlQuery.run = remodel_run
+ast.RqlQuery.run = remodel_run

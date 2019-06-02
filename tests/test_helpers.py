@@ -1,4 +1,4 @@
-import rethinkdb as r
+from rethinkdb import r
 
 from remodel.helpers import create_tables, drop_tables, create_indexes
 from remodel.models import Model

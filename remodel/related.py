@@ -1,4 +1,4 @@
-import rethinkdb as r
+from rethinkdb import r
 from inflection import tableize
 
 from .decorators import cached_property
