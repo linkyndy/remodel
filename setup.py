@@ -31,7 +31,7 @@ setup(
         'dev': [
             'pytest'
         ]
-    }
+    },
     classifiers=[
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
