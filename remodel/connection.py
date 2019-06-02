@@ -1,5 +1,4 @@
-
-import rethinkdb as r
+from rethinkdb import r
 from contextlib import contextmanager
 try:
     from queue import Queue, Empty
@@ -74,4 +73,3 @@ def get_conn():
         yield conn
     finally:
         pool.put(conn)
-

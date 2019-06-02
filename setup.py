@@ -23,7 +23,7 @@ setup(
     include_package_data=True,
     platforms='any',
     install_requires=[
-        'rethinkdb',
+        'rethinkdb>=2.4',
         'inflection',
         'six'
     ],

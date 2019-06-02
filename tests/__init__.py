@@ -1,5 +1,5 @@
 import os
-import rethinkdb as r
+from rethinkdb import r
 from rethinkdb.errors import RqlDriverError
 import unittest
 

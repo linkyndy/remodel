@@ -1,4 +1,4 @@
-import rethinkdb as r
+from rethinkdb import r
 from six import add_metaclass
 from inflection import tableize
 
