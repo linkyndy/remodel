@@ -353,8 +353,27 @@ class DeleteTests(DbBaseTestCase):
         super(DeleteTests, self).setUp()
 
         class Artist(Model):
-            pass
+            belongs_to = ('Label',)
+            has_one = ('TrueFan',)
+            has_many = ('Fan',)
+            has_and_belongs_to_many = ('Band',)
         self.Artist = Artist
+
+        class Label(Model):
+            pass
+        self.Label = Label
+
+        class TrueFan(Model):
+            pass
+        self.TrueFan = TrueFan
+
+        class Fan(Model):
+            pass
+        self.Fan = Fan
+
+        class Band(Model):
+            pass
+        self.Band = Band
 
         create_tables()
         create_indexes()
