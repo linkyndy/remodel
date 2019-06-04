@@ -111,8 +111,8 @@ class Model(object):
         # Remove any reference to the deleted object
         for field in self.fields.related:
             delattr(self.fields, field)
-
         delattr(self.fields, 'id')
+
         self._run_callbacks('after_delete')
 
     # TODO: Get rid of this nasty decorator after renaming .get() on ObjectHandler
