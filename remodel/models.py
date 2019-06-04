@@ -75,9 +75,7 @@ class Model(object):
             result = (r.table(self.table_name).get(id_).replace(r.row
                         .without(r.row.keys().difference(list(fields_dict.keys())))
                         .merge(fields_dict), return_changes='always').run())
-            if result['errors'] > 0:
-                raise Exception(result['first_error'])
-        except:
+        except KeyError:
             # Resort to insert
             result = (r.table(self.table_name).insert(fields_dict, return_changes=True)
                       .run())
