@@ -10,16 +10,20 @@ from .utils import Counter
 
 
 class Connection(object):
-    def __init__(self, db='test', host='localhost', port=28015, auth_key=''):
+    def __init__(self, db=None, host=None, port=None, auth_key=None, user=None,
+                 password=None):
         self.db = db
         self.host = host
         self.port = port
         self.auth_key = auth_key
+        self.user = user
+        self.password = password
         self._conn = None
 
     def connect(self):
         self._conn = r.connect(host=self.host, port=self.port,
-                               auth_key=self.auth_key, db=self.db)
+                               auth_key=self.auth_key, user=self.user,
+                               password=self.password, db=self.db)
 
     def close(self):
         if self._conn:
