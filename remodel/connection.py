@@ -10,8 +10,8 @@ from .utils import Counter
 
 
 class Connection(object):
-    def __init__(self, db='test', host='localhost', port=28015, auth_key='',
-                 user='admin', password=''):
+    def __init__(self, db=None, host=None, port=None, auth_key=None, user=None,
+                 password=None):
         self.db = db
         self.host = host
         self.port = port
