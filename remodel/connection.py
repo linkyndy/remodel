@@ -21,15 +21,9 @@ class Connection(object):
         self._conn = None
 
     def connect(self):
-        if rethinkdb.__version__ >= '2.3.0':
-            password = self.password if self.password != '' else self.auth_key
-            self._conn = rethinkdb.connect(host=self.host, port=self.port,
-                                           user=self.user, password=password,
-                                           db=self.db)
-        else:
-            auth_key = self.auth_key if self.auth_key != '' else self.password
-            self._conn = rethinkdb.connect(host=self.host, port=self.port,
-                                           auth_key=auth_key, db=self.db)
+        self._conn = r.connect(host=self.host, port=self.port,
+                               auth_key=self.auth_key, user=self.user,
+                               password=self.password, db=self.db)
 
     def close(self):
         if self._conn:
