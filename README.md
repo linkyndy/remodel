@@ -72,6 +72,16 @@ create_tables()
 create_indexes()
 ```
 
+### Configuring database connection
+
+Setups are widely different, so here's how you need to configure remodel in order to connect to your RethinkDB database:
+
+```python
+from remodel.connection import pool
+
+pool.configure(host='localhost', port=28015, auth_key=None, user='admin', password='', db='test')
+```
+
 ### Relations
 
 #### Has one / Belongs to
