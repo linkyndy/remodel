@@ -41,7 +41,9 @@ class ObjectHandler(object):
         return self.create(**kwargs), True
 
     def filter(self, ids=None, **kwargs):
-        if ids:
+        if callable(ids):
+            query = self.query.filter(ids).filter(kwargs)
+        elif ids:
             try:
                 query = self.query.get_all(r.args(ids)).filter(kwargs)
             except AttributeError:
