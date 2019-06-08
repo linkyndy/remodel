@@ -156,6 +156,22 @@ class FilterTests(DbBaseTestCase):
         assert isinstance(objs[0], self.Artist)
         assert objs[0]['id'] == a['id']
 
+    def test_by_ids_and_kwargs_some_objects_valid_filter(self):
+        a = self.Artist.create(name='Andrei')
+        self.Artist.create()
+        objs = self.Artist.filter([a['id']], name='Andrei')
+        assert len(objs) == 1
+        assert isinstance(objs[0], self.Artist)
+        assert objs[0]['id'] == a['id']
+
+    def test_by_lambda_and_kwargs_some_objects_valid_filter(self):
+        a = self.Artist.create(name='Andrei')
+        self.Artist.create()
+        objs = self.Artist.filter(lambda artist: artist['id'] == a['id'], name='Andrei')
+        assert len(objs) == 1
+        assert isinstance(objs[0], self.Artist)
+        assert objs[0]['id'] == a['id']
+
     def test_by_ids_some_objects_deleted_valid_filter(self):
         a = self.Artist.create()
         a_id = a['id']
@@ -191,6 +207,16 @@ class FilterTests(DbBaseTestCase):
         self.Artist.create()
         self.Artist.create()
         assert len(self.Artist.filter(id='id')) == 0
+
+    def test_by_ids_and_kwargs_some_objects_invalid_filter(self):
+        self.Artist.create(name='Andrei')
+        self.Artist.create()
+        assert len(self.Artist.filter(['id'], name='Andrei')) == 0
+
+    def test_by_lambda_and_kwargs_some_objects_invalid_filter(self):
+        self.Artist.create(name='Andrei')
+        self.Artist.create()
+        assert len(self.Artist.filter(lambda artist: artist['id'] == 'id', name='Andrei')) == 0
 
 
 class CountTests(DbBaseTestCase):
