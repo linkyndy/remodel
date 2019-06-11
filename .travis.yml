@@ -17,7 +17,7 @@ deploy:
   provider: pypi
   user: linkyndy
   password:
-    secure: "K7lrgkEOm9bDf7EEBQqGxDjnjAVBpQTOec9PmFgB/C8YWUJhhI8mhs/b6JCh32p9AQACbUn/2BBUVqWnTL0exBPQNsVzkpUeaj9OZJD8kFjx0uv5YwDzjEufh1dMJNUYzx2J3KGcDvn6aKSP0RXxLCFF97a6WYc9YN8tutlSLbQ="
+    secure: "eLCstCgrjdSNPtiiXrPyLWpqF0ggK70/Ks1Jq/cCZj5rnAHscmL+KLM5QMRi/l5HP4xwa/gv4wxdYHR7e6EwCsFW2cWlylFGI9ximiPSAflOUBOq8qE4gaxOrru3xYEfCs2+Uz2pfUNoRygxc3ai1IVWTfmXUvJChBCN0vfyMfM="
   on:
     tags: true
   skip_existing: true
