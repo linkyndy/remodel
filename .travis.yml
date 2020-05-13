@@ -11,8 +11,6 @@ addons:
   rethinkdb: 2.3
 install:
   - pip install .[dev]
-# TODO: This is (hopefully) only temporary, until Travis fixes it
-before_script: sudo service rethinkdb stop && sudo service rethinkdb start
 script: pytest
 deploy:
   provider: pypi
